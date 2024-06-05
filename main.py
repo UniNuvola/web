@@ -1,68 +1,48 @@
-import hvac
-from flask import Flask, render_template, request, redirect, url_for
-from db import DBManager
+from flask import Flask, url_for, session
+from flask import render_template, redirect
+from authlib.integrations.flask_client import OAuth
 
 
-dbm = DBManager()
 app = Flask(__name__)
+app.secret_key = '!secret'
+app.config.from_object('config')
+
+# TODO: nascondere in .env ?
+CONF_URL = 'http://127.0.0.1:8200/v1/identity/oidc/provider/default/.well-known/openid-configuration'
+oauth = OAuth(app)
+oauth.register(
+    name='vault',
+    server_metadata_url=CONF_URL,
+    client_kwargs={
+        'scope': 'openid default'
+    }
+)
 
 
-# def client():
-#     client = hvac.Client(
-#         url='http://127.0.0.1:8200'
-#     )
-#
-#     print(f"Client Auth: {client.is_authenticated()}")
-#
-#     try:
-#         client.auth.userpass.login(
-#             username='alice',
-#             password='alice'
-#         )
-#     except:
-#         print("Wrong Pass or id")
-#         exit(1)
-#
-#     print(f"Client Auth: {client.is_authenticated()}")
-#     print("Autenticato, redirect to ...")
-#
-#     print(vars(client.auth.userpass))
-#     print(client.auth.userpass.read_user('alice'))
+@app.route('/')
+def homepage():
+    user = session.get('user')
+    return render_template('home.html', user=user)
 
-@app.route('/login', methods=['POST'])
+
+@app.route('/login')
 def login():
-    if request.method != 'POST':
-        return "<h1>ERRORE !</h1>"
-    
-    client = hvac.Client(
-        url='http://127.0.0.1:8200'
-    )
-
-    # print(f"Client Auth: {client.is_authenticated()}")
-
-    try:
-        client.auth.userpass.login(
-            username=request.form['user'],
-            password=request.form['pass']
-        )
-    except:
-        return "Wrong Pass or id"
-
-    # return "NICE!"
-    return redirect('/user')
+    redirect_uri = url_for('auth', _external=True)
+    return oauth.vault.authorize_redirect(redirect_uri)
 
 
-@app.route('/user')
-def user():
-    return render_template('user.html')
+@app.route('/auth')
+def auth():
+    token = oauth.vault.authorize_access_token()
+    session['user'] = token['userinfo']
+    return redirect('/')
 
 
-@app.route("/")
-def hellow_world():
-    return render_template('index.html')
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect('/')
 
-# print(vars(client.session))
-# print(vars(client))
-# print(client.read("/auth/userpass/users/alice"))
-# config_response = client.secrets.activedirectory.read_config()
-# print(config_response)
+
+if __name__ == "__main__":
+   app.run(debug=True) 
