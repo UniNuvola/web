@@ -4,7 +4,7 @@ from authlib.integrations.flask_client import OAuth
 
 
 app = Flask(__name__)
-app.secret_key = '!secret'
+app.secret_key = '!secret'      # TODO: sceglierne una migliore !
 app.config.from_object('config')
 
 # TODO: nascondere in .env ?
