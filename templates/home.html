@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+
+     <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div class="col-md-6 mx-auto p-4 py-md-5">
+    <!-- <div class="container text-center"> -->
+      <main>
+
+        <!-- Title/Header -->
+        <div class="row">
+          <div class="col-10">
+            <h1>UniNuvola Access Request</h1>
+          </div>
+
+          {% if user %}
+          <div class="col-2">
+            <a href="/logout">
+              <button type="button" class="btn btn-primary">Logut &nbsp;
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-left" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0z"/>
+                  <path fill-rule="evenodd" d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708z"/>
+                </svg>
+              </button>
+            </a>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Prototipo Disclaimer -->
+        <div class="row py-md-2">
+          <div class="col">
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+              <strong>Attention please!</strong> <i>Please note that UniNuvola is still in its prototype phase and
+              is currently being tested!</i><br>
+              As such, some features may be missing or incomplete.
+              While we strive to provide a reliable and efficient service, users should be aware that:
+              <ul>
+                <li>The system may experience temporary errors or downtime.</li>
+                <li>Some functions or services may not be fully implemented or tested.</li>
+                <li>Data loss or corruption may occur due to the experimental nature of the service.</li>
+              </ul>
+              We appreciate your feedback and cooperation in helping us refine and improve UniNuvola as a reliable and
+              effective tool for our academic community.
+            </div>
+          </div> 
+        </div>
+
+        {% if user %}
+          <p><b>email:</b> {{user['contact']['email']}}</p>
+
+          <!-- <a href="/logout"><button type="button" class="btn btn-primary">Logut</button></a> -->
+
+        {% else %}
+          <!-- Description and Login -->
+          <div class="row mx-auto py-md-2">
+            <div class="col">
+              <!-- <p class="fs-5">Breve descrizione di uninuvola ?? Un po di testo. This is a text lorem inpusm sinat dolent</p> -->
+              <p class="fs-5">
+                UniNuvola is a web-based service that enables members of Università degli Studi di Perugia to perform high-performance
+                calculations in various research fields, such as Deep Learning, Computational Chemistry, and Simulations.
+                This innovative platform leverages the power of distributed computing to accelerate complex calculations,
+                making it easier for researchers to focus on their work while benefiting from enhanced computational resources.
+
+                <h3>Key Features</h3>
+
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item"><b> - Distributed Computing</b>: UniNuvola utilizes a distributed architecture to harness the collective processing power of multiple machines, enabling users to perform large-scale simulations and computations that would be impractical or impossible with traditional local computing.</li>
+                  <li class="list-group-item"><b> - Cloud-based Infrastructure</b>: The service is built on a cloud-based infrastructure, ensuring scalability, flexibility, and reliability for users.</li>
+                  <li class="list-group-item"><b> - User-Friendly Interface</b>: UniNuvola features an intuitive web interface that allows researchers to easily submit jobs, monitor progress, and retrieve results, minimizing the need for specialized IT knowledge.</li>
+                  <li class="list-group-item"><b> - Support for Various Research Fields</b>: The service is designed to support a range of research areas, including Deep Learning, Computational Chemistry, and Simulations, allowing users to tackle complex problems in their respective fields.</li>
+                </ul>
+
+                <h3>Goals</h3>
+
+                The UniNuvola project aims to create a robust and user-friendly distributed computing service that supports
+                the research needs of the University community.
+                By providing an innovative platform for high-performance calculations, UniNuvola seeks to enhance research productivity,
+                facilitate collaboration, and foster innovation in various fields of study.
+              </p>
+
+
+
+
+
+              <a href="/login"><button type="button" class="btn btn-primary">Login &nbsp;  🚀</button></a>
+            </div>
+          </div>
+        {% endif %}
+      </main>
+    </div>
+  </body>
+</html>
