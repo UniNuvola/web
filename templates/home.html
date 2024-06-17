@@ -54,8 +54,38 @@
         </div>
 
         {% if user %}
-          <p><b>email:</b> {{user['contact']['email']}}</p>
+          <h3>Welcame {{user['contact']['email']}} 👋</h3>
+          <p>Add some text to explain requests </p>
 
+          <h3 class="mt-5">Request status</h3>
+
+          {% if user['request_data']|length == 0 %}
+            <p>No reqest found !</p>
+            <form method="POST">
+              <input type="submit" class="btn btn-primary" value="Require Access 🔓"/>
+            </form>
+
+          {% else %}
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>User</th>
+                  <th>State</th>
+                  <th>Accepted Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{{user['request_data'][0][1]}}</td>
+                  <td>{{user['request_data'][0][0]}}</td>
+                  <td>{{ 'Accepted' if user['request_data'][0][2] else 'Pending'}}</td>
+                  <td>{{ user['request_data'][0][3] if user['request_data'][0][3] else '-'}}</td>
+                </tr>
+              </tbody>
+            </table>
+
+          {% endif %}
           <!-- <a href="/logout"><button type="button" class="btn btn-primary">Logut</button></a> -->
 
         {% else %}
