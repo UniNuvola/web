@@ -72,7 +72,7 @@ def homepage():
         if request.method == 'POST':
             dbms.add_request(user['contact']['email'])
 
-        user['request_data'] = dbms.get_request_status(user['contact']['email'])
+        user['request_data'] = dbms.get_request_status(user['contact']['email'])[0]
         app.logger.debug(f"USER REQUEST DATA: {user['request_data']}")
 
     return render_template('home.html', user=user)
