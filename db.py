@@ -36,6 +36,12 @@ class DBManager():
             conn.commit()
             c.close()
 
+    def __dict_factory(self, cursor, row):
+        d = {}
+        for idx, col in enumerate(cursor.description):
+            d[col[0]] = row[idx]
+        return d
+
     def add_request(self, user: str):
         assert user is not None
         assert user != ''
@@ -59,18 +65,21 @@ class DBManager():
             c.close()
             conn.commit()
 
-    def get_request_status(self, user: str):
+    def get_request_status(self, user: str, admin=False):
         assert user is not None
         assert user != ''
         
         with sqlite3.connect(DBManager.__dbfile) as conn:
+            conn.row_factory = self.__dict_factory
+
             c = conn.cursor()
             c.execute(f"SELECT * FROM {DBManager.__tab_richieste} WHERE user = ?", (user,))
 
             rows = c.fetchall()
             c.close()
 
-            assert len(rows) <= 1
+            if not admin:
+                assert len(rows) <= 1
 
             return rows
 
