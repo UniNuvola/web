@@ -78,10 +78,10 @@
               </thead>
               <tbody>
                 <tr>
-                  <td>{{user['request_data'][0][1]}}</td>
-                  <td>{{user['request_data'][0][0]}}</td>
-                  <td>{{ 'Accepted' if user['request_data'][0][2] else 'Pending'}}</td>
-                  <td>{{ user['request_data'][0][3] if user['request_data'][0][3] else '-'}}</td>
+                  <td>{{user['request_data']['start_date']}}</td>
+                  <td>{{user['request_data']['user']}}</td>
+                  <td>{{ 'Accepted' if user['request_data']['state'] else 'Pending'}}</td>
+                  <td>{{ user['request_data']['end_date'] if user['request_data']['end_date'] else '-'}}</td>
 
                   <!-- TODO: gestire rimozione ! -->
                   <td><button class="btn btn-danger btn-sm">
