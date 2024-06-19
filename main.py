@@ -1,9 +1,10 @@
 import logging
 import sys
-from flask import Flask, url_for, session
+from flask import Flask, url_for, session, request
 from flask import render_template, redirect
 from authlib.integrations.flask_client import OAuth
 from logging.config import dictConfig
+from db import DBManager
 
 
 # Logging Settings
@@ -38,6 +39,8 @@ dictConfig({
 
 app = Flask(__name__)
 
+dbms = DBManager()
+
 app.logger.debug("Setting secret key")
 app.secret_key = '!secret'      # TODO: sceglierne una migliore !
 
@@ -58,10 +61,24 @@ oauth.register(
 )
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST', 'DELETE'])
 def homepage():
     user = session.get('user')
+    request_data = None
+
     app.logger.debug(f"/ User value: {user}")
+
+    if user:
+        match request.method:
+            case 'POST':
+                dbms.add_request(user['contact']['email'])
+            case 'DELETE':
+                dbms.delete_request(user['contact']['email'])
+            case _:
+                print(request.method)
+
+        user['request_data'] = dbms.get_request_status(user['contact']['email'])
+        app.logger.debug(f"USER REQUEST DATA: {user['request_data']}")
 
     return render_template('home.html', user=user)
 
