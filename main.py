@@ -85,6 +85,8 @@ def homepage():
             user['request_data'] = dbms.get_all_requests_status()
             app.logger.debug(f"ADMIN REQUEST DATA: {user['request_data']}")
 
+            return render_template('users/admin.html', user=user)
+
         # USER ROLE
         else:
             user['admin'] = False
@@ -100,7 +102,9 @@ def homepage():
             user['request_data'] = dbms.get_request_status(user['contact']['email'])
             app.logger.debug(f"USER REQUEST DATA: {user['request_data']}")
 
-    return render_template('home.html', user=user)
+            return render_template('users/user.html', user=user)
+
+    return render_template('users/unlogged.html', user=user)
 
 
 @app.route('/login')
