@@ -65,7 +65,39 @@ class DBManager():
             c.close()
             conn.commit()
 
-    def get_request_status(self, user: str, admin=False):
+    def delete_request(self, user: str):
+        assert user is not None
+        assert user != ''
+
+        with sqlite3.connect(DBManager.__dbfile) as conn:
+            c = conn.cursor()
+            c.execute(f"DELETE FROM {DBManager.__tab_richieste} WHERE user = ?", (user, ))
+            c.close()
+            conn.commit()
+
+    def update_request_status(self, user: str):
+        assert user is not None
+        assert user != ''
+
+        with sqlite3.connect(DBManager.__dbfile) as conn:
+            conn.row_factory = self.__dict_factory
+
+            c = conn.cursor()
+            c.execute(f"SELECT state FROM {DBManager.__tab_richieste} WHERE user = ?", (user,))
+
+            rows = c.fetchall()
+            c.close()
+
+            assert len(rows) == 1
+            req_status = rows[0]['state']
+            new_req_status = (req_status + 1)%2
+
+            c = conn.cursor()
+            c.execute(f"UPDATE {DBManager.__tab_richieste} SET state=? WHERE user = ?", (new_req_status, user,))
+            c.close()
+            conn.commit()
+
+    def get_request_status(self, user: str):
         assert user is not None
         assert user != ''
         
@@ -78,13 +110,30 @@ class DBManager():
             rows = c.fetchall()
             c.close()
 
-            if not admin:
-                assert len(rows) <= 1
+            assert len(rows) <= 1
 
             return rows
 
+    def get_all_requests_status(self):
+        with sqlite3.connect(DBManager.__dbfile) as conn:
+            conn.row_factory = self.__dict_factory
+
+            c = conn.cursor()
+            c.execute(f"SELECT * FROM {DBManager.__tab_richieste}")
+
+            rows = c.fetchall()
+            c.close()
+
+            return rows
+
+
 if __name__ == "__main__":
     db = DBManager() 
-    db.add_request('alice.alice@alice.it')
-    db.get_request_status("alice.alice@alice.it")
-   # db2 = DBManager() 
+    # db.delete_request("alice.alice@alice.it")
+    # db.add_request('alice.alice@alice.it')
+    # db.add_request('bob.bob@bob.it')
+    # print(db.get_request_status("alice.alice@alice.it"))
+    print(db.get_all_requests_status())
+    # db.delete_request("alice.alice@alice.it")
+    db.update_request_status("alice.alice@alice.it")
+    print(db.get_all_requests_status())
