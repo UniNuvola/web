@@ -61,7 +61,7 @@ oauth.register(
 )
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST', 'DELETE'])
 def homepage():
     user = session.get('user')
     request_data = None
@@ -69,10 +69,15 @@ def homepage():
     app.logger.debug(f"/ User value: {user}")
 
     if user:
-        if request.method == 'POST':
-            dbms.add_request(user['contact']['email'])
+        match request.method:
+            case 'POST':
+                dbms.add_request(user['contact']['email'])
+            case 'DELETE':
+                dbms.delete_request(user['contact']['email'])
+            case _:
+                print(request.method)
 
-        user['request_data'] = dbms.get_request_status(user['contact']['email'])[0]
+        user['request_data'] = dbms.get_request_status(user['contact']['email'])
         app.logger.debug(f"USER REQUEST DATA: {user['request_data']}")
 
     return render_template('home.html', user=user)
