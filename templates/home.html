@@ -11,27 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 
-    {% if user['admin'] %}
-      <script></script>
-
-    {% else %}
-      <script>
-        /** 
-         * Delete request auxiliary function.
-         * This function invokes the main page via a DELETE request,
-         * instructing the backend to remove the user's current request.
-         */
-        function delete_request() {
-          $.ajax({
-             url: '/',
-             type: 'DELETE',
-             success: function(response) {
-               window.location.replace("/")
-             }
-          });
-        }
-      </script>
-    {% endif %}
+    {% block script %}{% endblock %}
 
   </head>
   <body>
@@ -78,122 +58,8 @@
           </div> 
         </div>
 
-        {% if user %}
-          <h3>Welcame {{user['contact']['email']}} 👋</h3>
-          <p>Add some text to explain requests </p>
+        {% block body %}{% endblock %}
 
-          <h3 class="mt-5">Request status</h3>
-
-          <!-- ADMIN -->
-          {% if user['admin'] == True %}
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>User</th>
-                  <th>State</th>
-                  <th>Accepted Date</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for req in user['request_data'] %}
-                <tr>
-                  <td>{{req['start_date']}}</td>
-                  <td>{{req['user']}}</td>
-                  <td>{{ 'Accepted' if req['state'] else 'Pending'}}</td>
-                  <td>{{ req['end_date'] if req['end_date'] else '-'}}</td>
-                  <td>
-                    <form method="POST">
-                      <input type="hidden" name="id" value="{{req['user']}}"/> 
-                      <input type="submit" class="btn btn-{{'danger' if req['state'] else 'primary'}} btn-sm" value="{{'Revoke' if req['state'] else 'Approve'}}"/>
-                    </form>
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-
-          <!-- USER -->
-          {% else %} 
-            {% if user['request_data']|length == 0 %}
-              <p>No reqest found !</p>
-              <form method="POST">
-                <input type="submit" class="btn btn-primary" value="Require Access 🔓"/>
-              </form>
-
-              {% else %}
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>User</th>
-                      <th>State</th>
-                      <th>Accepted Date</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>{{user['request_data']['start_date']}}</td>
-                      <td>{{user['request_data']['user']}}</td>
-                      <td>{{ 'Accepted' if user['request_data']['state'] else 'Pending'}}</td>
-                      <td>{{ user['request_data']['end_date'] if user['request_data']['end_date'] else '-'}}</td>
-                      <td>
-                        {% if user['request_data']['state'] == 1 %}
-                          <a href="https://uninuvola.fisgeo.unipg.it/"><button type="button" class="btn btn-primary btn-sm">🚀</button></a>
-                          
-                        {% else %}
-                          <button type="button" onclick="delete_request();" class="btn btn-danger btn-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                              <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
-                              <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
-                            </svg>
-                          </button>
-                        {% endif %}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              {% endif %}
-          {% endif %}
-
-        {% else %}
-          <!-- Description and Login -->
-          <div class="row mx-auto py-md-2">
-            <div class="col">
-              <!-- <p class="fs-5">Breve descrizione di uninuvola ?? Un po di testo. This is a text lorem inpusm sinat dolent</p> -->
-              <p class="fs-5">
-                UniNuvola is a web-based service that enables members of Università degli Studi di Perugia to perform high-performance
-                calculations in various research fields, such as Deep Learning, Computational Chemistry, and Simulations.
-                This innovative platform leverages the power of distributed computing to accelerate complex calculations,
-                making it easier for researchers to focus on their work while benefiting from enhanced computational resources.
-
-                <h3>Key Features</h3>
-
-                <ul class="list-group list-group-flush">
-                  <li class="list-group-item"><b> - Distributed Computing</b>: UniNuvola utilizes a distributed architecture to harness the collective processing power of multiple machines, enabling users to perform large-scale simulations and computations that would be impractical or impossible with traditional local computing.</li>
-                  <li class="list-group-item"><b> - Cloud-based Infrastructure</b>: The service is built on a cloud-based infrastructure, ensuring scalability, flexibility, and reliability for users.</li>
-                  <li class="list-group-item"><b> - User-Friendly Interface</b>: UniNuvola features an intuitive web interface that allows researchers to easily submit jobs, monitor progress, and retrieve results, minimizing the need for specialized IT knowledge.</li>
-                  <li class="list-group-item"><b> - Support for Various Research Fields</b>: The service is designed to support a range of research areas, including Deep Learning, Computational Chemistry, and Simulations, allowing users to tackle complex problems in their respective fields.</li>
-                </ul>
-
-                <h3>Goals</h3>
-
-                The UniNuvola project aims to create a robust and user-friendly distributed computing service that supports
-                the research needs of the University community.
-                By providing an innovative platform for high-performance calculations, UniNuvola seeks to enhance research productivity,
-                facilitate collaboration, and foster innovation in various fields of study.
-              </p>
-
-
-
-
-
-              <a href="/login"><button type="button" class="btn btn-primary">Login &nbsp;  🚀</button></a>
-            </div>
-          </div>
-        {% endif %}
       </main>
     </div>
   </body>
