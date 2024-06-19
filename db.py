@@ -112,7 +112,7 @@ class DBManager():
 
             assert len(rows) <= 1
 
-            return rows
+            return rows[0] if len(rows) == 1 else []
 
     def get_all_requests_status(self):
         with sqlite3.connect(DBManager.__dbfile) as conn:
@@ -133,7 +133,7 @@ if __name__ == "__main__":
     # db.add_request('alice.alice@alice.it')
     # db.add_request('bob.bob@bob.it')
     # print(db.get_request_status("alice.alice@alice.it"))
-    print(db.get_all_requests_status())
+    # print(db.get_all_requests_status())
     # db.delete_request("alice.alice@alice.it")
-    db.update_request_status("alice.alice@alice.it")
-    print(db.get_all_requests_status())
+    # db.update_request_status("alice.alice@alice.it")
+    # print(db.get_all_requests_status())
