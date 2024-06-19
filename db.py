@@ -92,8 +92,10 @@ class DBManager():
             req_status = rows[0]['state']
             new_req_status = (req_status + 1)%2
 
+            new_date = datetime.now() if new_req_status else None
+
             c = conn.cursor()
-            c.execute(f"UPDATE {DBManager.__tab_richieste} SET state=? WHERE user = ?", (new_req_status, user,))
+            c.execute(f"UPDATE {DBManager.__tab_richieste} SET state=?, end_date=? WHERE user = ?", (new_req_status, new_date, user,))
             c.close()
             conn.commit()
 
