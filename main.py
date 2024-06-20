@@ -124,8 +124,6 @@ def auth():
 
     return redirect(url_for('homepage'))
 
-
-# TODO: logut non funziona
 @app.route('/logout')
 def logout():
     token = session.get('token')
