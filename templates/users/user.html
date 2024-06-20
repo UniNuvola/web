@@ -20,13 +20,13 @@
 {% endblock %}
 
 {% block body %}
-  <h3>Welcame {{user['contact']['email']}} 👋</h3>
+  <h3>Welcome {{user['contact']['email']}} 👋</h3>
   <p>Add some text to explain requests </p>
 
   <h3 class="mt-5">Request status</h3>
 
   {% if user['request_data']|length == 0 %}
-  <p>No reqest found !</p>
+  <p>No request found !</p>
   <form method="POST">
     <input type="submit" class="btn btn-primary" value="Require Access 🔓"/>
   </form>

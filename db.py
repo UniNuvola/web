@@ -77,7 +77,7 @@ class DBManager():
         return d
 
     def add_request(self, user: str):
-        """ Insert a single user request into th database
+        """ Insert a single user request into the database
 
         This function adds a new user request to the database by setting the necessary fields as
         'user', 'start_date', etc. The function prevents adding multiple requests
