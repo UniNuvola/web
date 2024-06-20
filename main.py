@@ -41,19 +41,19 @@ app = Flask(__name__)
 
 dbms = DBManager()
 
-app.logger.debug("Setting secret key")
-app.secret_key = '!secret'      # TODO: sceglierne una migliore !
-
 app.logger.debug("Loading configs from envs")
 app.config.from_object('config')
 
-# TODO: nascondere in .env ?
+app.logger.debug(f"Setting secret key: {app.config['SECRET_KEY']}")
+app.secret_key = app.config['SECRET_KEY']
+
+app.logger.debug(f"ADMIN USERS: {app.config['ADMIN_USERS']}")
+
 app.logger.debug("Loading OAuth configs")
-CONF_URL = 'http://127.0.0.1:8200/v1/identity/oidc/provider/default/.well-known/openid-configuration'
 oauth = OAuth(app)
 oauth.register(
     name='vault',
-    server_metadata_url=CONF_URL,
+    server_metadata_url=app.config['VAULT_CONF_URL'],
     api_base_url='http://localhost:8200/v1/',
     client_kwargs={
         'scope': 'openid default'
@@ -69,18 +69,40 @@ def homepage():
     app.logger.debug(f"/ User value: {user}")
 
     if user:
-        match request.method:
-            case 'POST':
-                dbms.add_request(user['contact']['email'])
-            case 'DELETE':
-                dbms.delete_request(user['contact']['email'])
-            case _:
-                print(request.method)
+        # ADMIN ROLE
+        if user['contact']['email'] in app.config['ADMIN_USERS']:
+            app.logger.debug(f"User {user['contact']['email']} is ADMIN")
+            user['admin'] = True
+            
+            if request.method == 'POST':
+                user_to_update = request.form['id']
+                app.logger.debug(f"UPDATING USER {user_to_update} REQUEST")
 
-        user['request_data'] = dbms.get_request_status(user['contact']['email'])
-        app.logger.debug(f"USER REQUEST DATA: {user['request_data']}")
+                dbms.update_request_status(user_to_update)
 
-    return render_template('home.html', user=user)
+            user['request_data'] = dbms.get_all_requests_status()
+            app.logger.debug(f"ADMIN REQUEST DATA: {user['request_data']}")
+
+            return render_template('users/admin.html', user=user)
+
+        # USER ROLE
+        else:
+            user['admin'] = False
+
+            match request.method:
+                case 'POST':
+                    dbms.add_request(user['contact']['email'])
+                case 'DELETE':
+                    dbms.delete_request(user['contact']['email'])
+                case _:
+                    print(request.method)
+
+            user['request_data'] = dbms.get_request_status(user['contact']['email'])
+            app.logger.debug(f"USER REQUEST DATA: {user['request_data']}")
+
+            return render_template('users/user.html', user=user)
+
+    return render_template('users/unlogged.html', user=user)
 
 
 @app.route('/login')

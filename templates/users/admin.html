@@ -1,0 +1,39 @@
+{% extends 'home.html' %}
+
+{% block script %}
+{% endblock%}
+
+{% block body %}
+  <h3>Welcame {{user['contact']['email']}} 👋</h3>
+  <p>Add some text to explain requests </p>
+
+  <h3 class="mt-5">Request status</h3>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>User</th>
+        <th>State</th>
+        <th>Accepted Date</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for req in user['request_data'] %}
+      <tr>
+        <td>{{req['start_date']}}</td>
+        <td>{{req['user']}}</td>
+        <td>{{ 'Accepted' if req['state'] else 'Pending'}}</td>
+        <td>{{ req['end_date'] if req['end_date'] else '-'}}</td>
+        <td>
+          <form method="POST">
+            <input type="hidden" name="id" value="{{req['user']}}"/> 
+            <input type="submit" class="btn btn-{{'danger' if req['state'] else 'primary'}} btn-sm" value="{{'Revoke' if req['state'] else 'Approve'}}"/>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock%}
