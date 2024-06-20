@@ -25,7 +25,7 @@ ADMIN_USERS=
 > **DON'T FORGET THE PROTOCOL (`http://` or `https://`) BEFORE THE `<ip>` STRING !!**<br>
 > `SECRET_KEY` should be invented (not provided by Voult).<br>
 > `ADMIN_USERS` must be a list of users id. Something like this `ADMIN_USERS='["alice.alice@alice.it", "prova@unipg.it", "eliasforna@gmail.com"]'`.
-> Replace email with usernames or whatever you want. Be carefull with `'` and `"`, the must be use exactly linke in the example
+> Replace email with usernames or whatever you want. Be carefull with `'` and `"`, these must be used exactly as in the example.
 
 ## Run
 
