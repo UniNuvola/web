@@ -41,21 +41,19 @@ app = Flask(__name__)
 
 dbms = DBManager()
 
-app.logger.debug("Setting secret key")
-app.secret_key = '!secret'      # TODO: sceglierne una migliore !
-
 app.logger.debug("Loading configs from envs")
 app.config.from_object('config')
 
-# print(app.config)
+app.logger.debug(f"Setting secret key: {app.config['SECRET_KEY']}")
+app.secret_key = app.config['SECRET_KEY']
 
-# TODO: nascondere in .env ?
+app.logger.debug(f"ADMIN USERS: {app.config['ADMIN_USERS']}")
+
 app.logger.debug("Loading OAuth configs")
-CONF_URL = 'http://127.0.0.1:8200/v1/identity/oidc/provider/default/.well-known/openid-configuration'
 oauth = OAuth(app)
 oauth.register(
     name='vault',
-    server_metadata_url=CONF_URL,
+    server_metadata_url=app.config['VAULT_CONF_URL'],
     api_base_url='http://localhost:8200/v1/',
     client_kwargs={
         'scope': 'openid default'
