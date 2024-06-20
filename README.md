@@ -20,12 +20,12 @@ ADMIN_USERS=
 ```
 
 > [!NOTE]
-> `VAULT_API_BASE_URL` should be similar to `<ip>/v1/`.<br>
-> `VAULT_CONF_URL` should be similar to `<ip>/v1/identity/oidc/provider/<provider>/.well-known/openid-configuration`. The `<provider>` string should be `default`.<br>
-> **DON'T FORGET THE PROTOCOL (`http://` or `https://`) BEFORE THE `<ip>` STRING !!**<br>
-> `SECRET_KEY` should be invented (not provided by Voult).<br>
-> `ADMIN_USERS` must be a list of users id. Something like this `ADMIN_USERS='["alice.alice@alice.it", "prova@unipg.it", "eliasforna@gmail.com"]'`.
-> Replace email with usernames or whatever you want. Be careful with `'` and `"`, these must be used exactly as in the example.
+> - `VAULT_API_BASE_URL` should be similar to `<ip>/v1/`.
+> - `VAULT_CONF_URL` should be similar to `<ip>/v1/identity/oidc/provider/<provider>/.well-known/openid-configuration`. The `<provider>` string should be `default`.
+> - **DON'T FORGET THE PROTOCOL (`http://` or `https://`) BEFORE THE `<ip>` STRING !!**
+> - `SECRET_KEY` should be invented (not provided by Voult).
+> - `ADMIN_USERS` must be a list of users id. Something like this `ADMIN_USERS='["alice.alice@alice.it", "prova@unipg.it", "eliasforna@gmail.com"]'`.
+> - Replace email with usernames or whatever you want. Be careful with `'` and `"`, these must be used exactly as in the example.
 
 ## Run
 
