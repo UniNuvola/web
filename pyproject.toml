@@ -16,6 +16,10 @@ python-dotenv = "^1.0.1"
 [tool.poetry.group.docs.dependencies]
 pyment = "^0.3.3"
 
+
+[tool.poetry.group.dev.dependencies]
+click = "^8.1.7"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
