@@ -15,6 +15,9 @@ USERS = [
 
 
 def auth():
+    """Authenticate client using saved secrets.
+    """
+
     print("Loading secrets ...")
     with open(".env", "r") as fp:
         secrets = json.load(fp) 
@@ -30,6 +33,9 @@ def auth():
 @click.group(invoke_without_command=True)
 @click.pass_context
 def cli(ctx):
+    """Vault CLI tools to auto-deploy a new Vault container.
+    """
+
     if ctx.invoked_subcommand is None:
         test(ctx)
 
@@ -37,6 +43,12 @@ def cli(ctx):
 @click.option('--shares', default=5,)
 @click.option('--threshold', default=3,)
 def init(shares, threshold):
+    """Initialize Vault when first created.
+
+    Initialize the Vault container and save the resulting secrets (in json format)
+    in .env file.
+    """
+
     result = client.sys.initialize(shares, threshold)
 
     root_token = result['root_token']
@@ -49,6 +61,11 @@ def init(shares, threshold):
 
 @cli.command()
 def unseal():
+    """Unseal the Vault.
+
+    Unseal the Vault by using 3 keys (secrets) generated during the init phase.
+    """
+
     root_token, keys = auth()
 
     print(f"Client Sealed: {client.sys.is_sealed()}")
@@ -62,6 +79,12 @@ def unseal():
 
 @cli.command()
 def create_entity():
+    """Creates entities.
+    
+    Creates 2 test entities (alice and bob) with respective aliases.
+    Entity and Alias are needed for userpass/ auth method.
+    """
+
     _ = auth()
     
     accessor = client.sys.list_auth_methods()['userpass/']['accessor']
@@ -85,12 +108,22 @@ def create_entity():
 
 @cli.command()
 def enable_userpass():
+    """Enable userpass/ auth method.
+    """
+
     _ = auth()
 
     client.sys.enable_auth_method('userpass')
 
 @cli.command()
 def set_users():
+    """Set userpass/ users.
+ 
+    Creates 2 users (alice and bob) inside the userpass/ auth methods and sets the passowrds.
+    Users' names are the same of entity names, this put in a relation entity and userpass/ users preventing to generate
+    new entities.
+    """
+
     _ = auth()
 
     for user in USERS:
@@ -111,6 +144,9 @@ def set_users():
 
 @cli.command()
 def create_group():
+    """Create the default group.
+    """
+
     _ = auth()
 
     create_response = client.secrets.identity.create_or_update_group(
@@ -122,6 +158,11 @@ def create_group():
     print('Group ID for "default" is: {id}'.format(id=group_id))
 
 def test(ctx):
+    """Deploy procedure.
+
+    Runs every CLI commands needed for auto-deploy e new Vault container.
+    """
+
     ctx.invoke(init)
     ctx.invoke(unseal)
     ctx.invoke(enable_userpass)
