@@ -1,11 +1,17 @@
 import hvac
 import click
 import json
+import logging
+
+
+# Logging settings
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s: %(message)s',
+)
+
 
 client = hvac.Client(url='http://localhost:8200')
-
-print(f"Client Authenticated: {client.is_authenticated()}")
-print(f"Client Inizialized: {client.sys.is_initialized()}")
 
 
 USERS = [
@@ -18,12 +24,18 @@ def auth():
     """Authenticate client using saved secrets.
     """
 
-    print("Loading secrets ...")
+    logging.info(f"Client Authenticated: {client.is_authenticated()}")
+    logging.info(f"Client Inizialized: {client.sys.is_initialized()}")
+
+    logging.info("Loading secrets ...")
     with open(".env", "r") as fp:
         secrets = json.load(fp) 
 
     root_token = secrets['root_token']
     keys = secrets['keys']
+
+    logging.debug(f"root_token: {root_token}, keys: {keys}")
+    logging.info("Authenticating ...")
 
     client.token = root_token
 
@@ -31,10 +43,14 @@ def auth():
 
 
 @click.group(invoke_without_command=True)
+@click.option('--verbose', type=click.Choice(['info', 'debug']), default='info', help="Logging level")
 @click.pass_context
-def cli(ctx):
+def cli(ctx, verbose):
     """Vault CLI tools to auto-deploy a new Vault container.
     """
+
+    # update logging level
+    logging.getLogger().setLevel(logging.INFO if verbose == 'info' else logging.DEBUG)
 
     if ctx.invoked_subcommand is None:
         test(ctx)
@@ -49,13 +65,18 @@ def init(shares, threshold):
     in .env file.
     """
 
+    logging.info("Running init procedure")
+    logging.debug(f"shares: {shares}, threshold: {threshold}")
+
     result = client.sys.initialize(shares, threshold)
 
     root_token = result['root_token']
     keys = result['keys']
 
-    print(f"Client Inizialized: {client.sys.is_initialized()}")
+    logging.debug(f"root_token: {root_token}, keys: {keys}")
+    logging.info(f"Client Inizialized: {client.sys.is_initialized()}")
 
+    logging.info("Saving secrets")
     with open(".env", "w") as fp:
         json.dump(result , fp) 
 
@@ -68,14 +89,19 @@ def unseal():
 
     root_token, keys = auth()
 
-    print(f"Client Sealed: {client.sys.is_sealed()}")
+    logging.info("Running Useal procedure")
+    logging.info(f"Client Sealed: {client.sys.is_sealed()}")
 
     # Unseal a Vault cluster with individual keys
     unseal_response1 = client.sys.submit_unseal_key(keys[0])
     unseal_response2 = client.sys.submit_unseal_key(keys[1])
     unseal_response3 = client.sys.submit_unseal_key(keys[2])
 
-    print(f"Client Sealed: {client.sys.is_sealed()}")
+    logging.debug(f"Unseal Response 1: {unseal_response1}")
+    logging.debug(f"Unseal Response 2: {unseal_response2}")
+    logging.debug(f"Unseal Response 3: {unseal_response3}")
+
+    logging.info(f"Client Sealed: {client.sys.is_sealed()}")
 
 @cli.command()
 def create_entity():
@@ -87,16 +113,18 @@ def create_entity():
 
     _ = auth()
     
+    logging.info("Creating entities")
+
     accessor = client.sys.list_auth_methods()['userpass/']['accessor']
+    logging.debug(f"userpass/ accessor: {accessor}")
 
     for user in USERS:
         create_response = client.secrets.identity.create_or_update_entity(
-                    name=user['name'],
-                    metadata=dict(email=user['email'], username=user['username']),
-            )
-
+            name=user['name'],
+            metadata=dict(email=user['email'], username=user['username']),
+        )
         entity_id = create_response['data']['id']
-        print(f"Entity ID for {user['name']} is: {entity_id}")
+        logging.info(f"Entity ID for {user['name']} is: {entity_id}")
 
         create_response = client.secrets.identity.create_or_update_entity_alias(
                 name=user['name'],
@@ -104,7 +132,7 @@ def create_entity():
                 mount_accessor=accessor,
         )
         alias_id = create_response['data']['id']
-        print(f"Alias ID for {user['name']} is: {alias_id}")
+        logging.info(f"Alias ID for {user['name']} is: {alias_id}")
 
 @cli.command()
 def enable_userpass():
@@ -113,6 +141,7 @@ def enable_userpass():
 
     _ = auth()
 
+    logging.info("Enabling userpass/")
     client.sys.enable_auth_method('userpass')
 
 @cli.command()
@@ -126,8 +155,11 @@ def set_users():
 
     _ = auth()
 
+    logging.info("Setting users for userpass/")
+
     for user in USERS:
         create_response = client.auth.userpass.create_or_update_user(username=user['name'], password=user['name'])
+        logging.debug(f"{user['name']} response: {create_response}")
 
 # @cli.command()
 # def oidc():
@@ -149,13 +181,15 @@ def create_group():
 
     _ = auth()
 
+    logging.info("Creating default group")
+
     create_response = client.secrets.identity.create_or_update_group(
             name='default',
             # metadata=dict(extra_data='we gots em'),
     )
 
     group_id = create_response['data']['id']
-    print('Group ID for "default" is: {id}'.format(id=group_id))
+    logging.info('Group ID for "default" is: {id}'.format(id=group_id))
 
 def test(ctx):
     """Deploy procedure.
