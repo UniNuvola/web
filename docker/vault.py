@@ -42,7 +42,7 @@ def auth():
     return root_token, keys
 
 
-@click.group(invoke_without_command=True)
+@click.group()
 @click.option('--verbose', type=click.Choice(['info', 'debug']), default='info', help="Logging level")
 @click.pass_context
 def cli(ctx, verbose):
@@ -52,8 +52,6 @@ def cli(ctx, verbose):
     # update logging level
     logging.getLogger().setLevel(logging.INFO if verbose == 'info' else logging.DEBUG)
 
-    if ctx.invoked_subcommand is None:
-        test(ctx)
 
 @cli.command()
 @click.option('--shares', default=5,)
@@ -191,7 +189,9 @@ def create_group():
     group_id = create_response['data']['id']
     logging.info('Group ID for "default" is: {id}'.format(id=group_id))
 
-def test(ctx):
+@cli.command()
+@click.pass_context
+def deploy(ctx):
     """Deploy procedure.
 
     Runs every CLI commands needed for auto-deploy e new Vault container.
