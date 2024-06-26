@@ -27,13 +27,24 @@ ADMIN_USERS=
 > - `ADMIN_USERS` must be a list of users id. Something like this `ADMIN_USERS='["alice.alice@alice.it", "prova@unipg.it", "eliasforna@gmail.com"]'`.
 > - Replace email with usernames or whatever you want. Be careful with `'` and `"`, these must be used exactly as in the example.
 
+One example of a configuration is shown below:
+
+```
+VAULT_CLIENT_ID=QHGdesC2wLwmCjsmvl7uOJ4o4SbmHyCE
+VAULT_CLIENT_SECRET=hvo_secret_TcKGRPh3sjC1WE4PrS2GV3XYpY2AkL0FEgYWRNQUPw7rLTYSS3Psei1oCfQFOeZg
+VAULT_API_BASE_URL=http://localhost:8200/v1/
+VAULT_CONF_URL=http://127.0.0.1:8200/v1/identity/oidc/provider/default/.well-known/openid-configuration
+SECRET_KEY=!secret
+ADMIN_USERS='["alice.alice@unipg.it", "prova@unipg.it", "eliasforna@gmail.com"]'
+```
+
 ### Vault as OIDC Provider
 
 Currently, the scripts that manage the automatic deployment of Vault do not handle the creation and configuration of Vault
 as an OIDC Provider, so this procedure must be performed manually.
 Follow in order the following points to complete the configuration successfully:
 
-1. Go to: Access ➡️ OIDC Provider
+1. Go to: "Access" and then "OIDC Provider"
 1. Click on the button "Create your first app"
 1. Fill the following fields
     ```
@@ -46,7 +57,7 @@ Follow in order the following points to complete the configuration successfully:
 1. Fill the following fields
     ```
     Name: default
-    Descriptio:
+    Description:
     JSON template: 
     {
         "contact": {
