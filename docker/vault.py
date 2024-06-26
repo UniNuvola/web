@@ -159,18 +159,71 @@ def set_users():
         create_response = client.auth.userpass.create_or_update_user(username=user['name'], password=user['name'])
         logging.debug(f"{user['name']} response: {create_response}")
 
-# @cli.command()
-# def oidc():
-#     _ = auth()
-#
-#     client.auth.oidc.create_role(
-#         name='Web',
-#         user_claim="True",
-#         allowed_redirect_uris="http://localhost:5000/auth",
-#     )
-#     client.sys.enable_auth_method(
-#         method_type='oidc',
-#     )
+@cli.command()
+@click.option('--appname', default='Web', help="OIDC Application name")
+@click.option('--scopename', default='default', help="OIDC Application Scope name")
+@click.option('--providername', default='default', help="OIDC Application Provider name")
+def oidc(appname, scopename, providername):
+    _ = auth()
+
+    # Create application
+    app_config = {
+        "access_token_ttl": "24h",
+        "assignments": [
+            "allow_all "
+        ],
+        "client_type": "confidential",
+        "id_token_ttl": "24h",
+        "key": "default",
+        "redirect_uris": [
+            "http://localhost:5000/auth"    # TODO: put in .env file ?
+        ]
+    }
+
+    logging.info(f"Creating application: {appname}")
+    logging.debug(app_config)
+
+    client.write_data(
+        path=f"/identity/oidc/client/{appname}",
+        data=app_config
+    )
+
+    # Create scope
+    scope_config = {
+        "description": "",
+        "template": """
+        {
+            "contact": {
+                "email": {{identity.entity.metadata.email}},
+                "username": {{identity.entity.metadata.username}}
+            }
+        }
+        """
+    }
+
+    logging.info(f"Creating application scope: {appname}")
+    logging.debug(scope_config)
+
+    client.write_data(
+        path=f"/identity/oidc/scope/{scopename}",
+        data=scope_config
+    )
+
+    # Update Provider
+    provider_config = {
+        "issuer": "http://localhost:8200",
+        "scopes_supported": [
+            scopename
+        ]
+    }
+
+    logging.info(f"Creating application provider: {providername}")
+    logging.debug(provider_config)
+
+    client.write_data(
+        path=f"/identity/oidc/provider/{providername}",
+        data=provider_config
+    )
 
 @cli.command()
 def create_group():
