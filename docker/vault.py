@@ -2,6 +2,7 @@ import hvac
 import click
 import json
 import logging
+import secrets
 
 
 # Logging settings
@@ -243,6 +244,35 @@ def create_group():
     logging.info('Group ID for "default" is: {id}'.format(id=group_id))
 
 @cli.command()
+@click.option('--appname', default='Web', help="OIDC Application name")
+@click.option('--secretlen', default=16, help="Secret key lenght")
+def get_webconfig(appname, secretlen):
+    _ = auth()
+
+    env_data = {}
+
+    logging.info(f"Generating Web config for Application {appname}")
+
+    respone = client.read(f"/identity/oidc/client/{appname}")
+    logging.debug(respone)
+
+    env_data['client_id'] = respone['data']['client_id']
+    env_data['client_secret'] = respone['data']['client_secret']
+    env_data['conf_url'] = "http://127.0.0.1:8200/v1/identity/oidc/provider/default/.well-known/openid-configuration" # TODO: automatico ?
+    env_data['secret_key'] = secrets.token_urlsafe(secretlen)
+    env_data['admin_users'] = "\'[\"alice.alice@unipg.it\", \"prova@unipg.it\", \"eliasforna@gmail.com\"]\'"
+
+    logging.debug(env_data)
+    logging.info("Writing ../.env data")
+
+    with open('../.env', 'w') as f:
+        f.write(f"VAULT_CLIENT_ID={env_data['client_id']}\n")
+        f.write(f"VAULT_CLIENT_SECRET={env_data['client_secret']}\n")
+        f.write(f"VAULT_CONF_URL={env_data['conf_url']}\n")
+        f.write(f"SECRET_KEY={env_data['secret_key']}\n")
+        f.write(f"ADMIN_USERS={env_data['admin_users']}\n")
+
+@cli.command()
 @click.pass_context
 def deploy(ctx):
     """Deploy procedure.
@@ -257,6 +287,7 @@ def deploy(ctx):
     ctx.invoke(set_users)
     ctx.invoke(create_group)
     ctx.invoke(oidc)
+    ctx.invoke(get_webconfig)
 
 
 if __name__ == "__main__":
