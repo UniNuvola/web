@@ -294,7 +294,7 @@ def get_webconfig(appname, secretlen):
 def deploy(ctx):
     """Deploy procedure.
 
-    Runs every CLI commands needed for auto-deploy e new Vault container.
+    Runs every CLI commands needed for auto-deploy a new Vault container.
     """
 
     ctx.invoke(init)
