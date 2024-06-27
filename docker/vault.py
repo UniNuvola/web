@@ -165,6 +165,13 @@ def set_users():
 @click.option('--scopename', default='default', help="OIDC Application Scope name")
 @click.option('--providername', default='default', help="OIDC Application Provider name")
 def oidc(appname, scopename, providername):
+    """Configure Vault as an OIDC Provider
+
+    \b
+    - Creates the Application with the redirect uris,
+    - Creates the default Scope
+    - Set the default provider configs
+    """
     _ = auth()
 
     # Create application
@@ -247,6 +254,16 @@ def create_group():
 @click.option('--appname', default='Web', help="OIDC Application name")
 @click.option('--secretlen', default=16, help="Secret key lenght")
 def get_webconfig(appname, secretlen):
+    """Generate config for the WepApp
+
+    \b
+    Generates a .env file with the required settings:
+        - OIDC Client ID
+        - OIDC Client Secret
+        - OIDC Conf URL
+        - A Secret Key
+        - Admin users
+    """
     _ = auth()
 
     env_data = {}
