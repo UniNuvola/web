@@ -145,7 +145,7 @@ def enable_userpass():
 @cli.command()
 def set_users():
     """Set userpass/ users.
- 
+
     Creates 2 users (alice and bob) inside the userpass/ auth methods and sets the passowrds.
     Users' names are the same of entity names, this put in a relation entity and userpass/ users preventing to generate
     new entities.
@@ -256,6 +256,7 @@ def deploy(ctx):
     ctx.invoke(create_entity)
     ctx.invoke(set_users)
     ctx.invoke(create_group)
+    ctx.invoke(oidc)
 
 
 if __name__ == "__main__":
