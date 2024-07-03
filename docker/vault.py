@@ -29,8 +29,14 @@ def auth():
     logging.info(f"Client Inizialized: {client.sys.is_initialized()}")
 
     logging.info("Loading secrets ...")
-    with open(".env", "r") as fp:
-        secrets = json.load(fp) 
+
+    try:
+        with open(".env", "r") as fp:
+            secrets = json.load(fp) 
+
+    except FileNotFoundError:
+        logging.error("No config file found !")
+        exit(1)
 
     root_token = secrets['root_token']
     keys = secrets['keys']
@@ -288,6 +294,38 @@ def get_webconfig(appname, secretlen):
         f.write(f"VAULT_CONF_URL={env_data['conf_url']}\n")
         f.write(f"SECRET_KEY={env_data['secret_key']}\n")
         f.write(f"ADMIN_USERS={env_data['admin_users']}\n")
+
+@cli.command()
+@click.argument('secret', type=click.Choice(["keys", "token", "all"]))
+def read(secret):
+    """Read specified Vault secrets config
+
+    \b
+    You can read:
+        - "keys": secret keys used to unseal Vault
+        - "token": the root token used to authenticate to Vault
+        - "all": both "keys" and "token"
+
+    """
+
+    _ = auth()
+
+    try:
+        with open(".env", "r") as f:
+            secrets = json.load(f)
+
+            to_print = {}
+
+            if secret == 'all':
+                to_print = secrets
+            else:
+                to_print = secrets['keys'] if secret == 'keys' else secrets['root_token']
+
+            logging.info(f"Secrets: {to_print}")
+
+    except OSError as e:
+        logging.error("No config file found !")
+
 
 @cli.command()
 @click.pass_context
