@@ -167,7 +167,7 @@ def set_users():
         logging.debug(f"{user['name']} response: {create_response}")
 
 @cli.command()
-@click.option('--appname', default='Web', help="OIDC Application name")
+@click.option('--appname', default='web', help="OIDC Application name")
 @click.option('--scopename', default='default', help="OIDC Application Scope name")
 @click.option('--providername', default='default', help="OIDC Application Provider name")
 def oidc(appname, scopename, providername):
@@ -224,7 +224,10 @@ def oidc(appname, scopename, providername):
     )
 
     # Update Provider
+    client_id = client.read(f"/identity/oidc/client/{appname}")['data']['client_id']
+
     provider_config = {
+        "allowed_client_ids": [ client_id ],
         "issuer": "http://localhost:8200",
         "scopes_supported": [
             scopename
@@ -257,9 +260,10 @@ def create_group():
     logging.info('Group ID for "default" is: {id}'.format(id=group_id))
 
 @cli.command()
-@click.option('--appname', default='Web', help="OIDC Application name")
+@click.option('--appname', default='web', help="OIDC Application name")
 @click.option('--secretlen', default=16, help="Secret key lenght")
-def get_webconfig(appname, secretlen):
+@click.option('--filename', default="../.env", help="Path to save config data")
+def get_webconfig(appname, secretlen, filename):
     """Generate config for the WepApp
 
     \b
@@ -281,14 +285,14 @@ def get_webconfig(appname, secretlen):
 
     env_data['client_id'] = respone['data']['client_id']
     env_data['client_secret'] = respone['data']['client_secret']
-    env_data['conf_url'] = "http://127.0.0.1:8200/v1/identity/oidc/provider/default/.well-known/openid-configuration" # TODO: automatico ?
+    env_data['conf_url'] = f"http://127.0.0.1:8200/v1/identity/oidc/provider/{appname}/.well-known/openid-configuration" # TODO: automatico ?
     env_data['secret_key'] = secrets.token_urlsafe(secretlen)
     env_data['admin_users'] = "\'[\"alice.alice@unipg.it\", \"prova@unipg.it\", \"eliasforna@gmail.com\"]\'"
 
     logging.debug(env_data)
-    logging.info("Writing ../.env data")
+    logging.info(f"Writing {filename} data")
 
-    with open('../.env', 'w') as f:
+    with open(filename, 'w') as f:
         f.write(f"VAULT_CLIENT_ID={env_data['client_id']}\n")
         f.write(f"VAULT_CLIENT_SECRET={env_data['client_secret']}\n")
         f.write(f"VAULT_CONF_URL={env_data['conf_url']}\n")
@@ -341,8 +345,10 @@ def deploy(ctx):
     ctx.invoke(create_entity)
     ctx.invoke(set_users)
     ctx.invoke(create_group)
-    ctx.invoke(oidc)
-    ctx.invoke(get_webconfig)
+    ctx.invoke(oidc, appname='web', scopename='web', providername='web')
+    ctx.invoke(oidc, appname='jupyter', scopename='jupyter', providername='jupyter')
+    ctx.invoke(get_webconfig, appname='web', filename='../.env')
+    ctx.invoke(get_webconfig, appname='jupyter', filename='../.jupyter.env')
 
 
 if __name__ == "__main__":
