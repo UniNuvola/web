@@ -56,7 +56,7 @@ oauth.register(
     server_metadata_url=app.config['VAULT_CONF_URL'],
     api_base_url='http://localhost:8200/v1/',
     client_kwargs={
-        'scope': 'openid default'
+        'scope': 'openid web'
     }
 )
 
