@@ -32,9 +32,11 @@ jobs:
         with:
           poetry-version: 1.8.3
 
+      - name: Virtualenvs config
+        run: poetry config virtualenvs.create false
+
       - name: Install Python dependencies
         run: poetry install --with dev,docs
-        # run: pip install pylint
 
       - name: Run linters
         uses: wearerequired/lint-action@v2
