@@ -15,6 +15,7 @@ python-dotenv = "^1.0.1"
 
 [tool.poetry.group.docs.dependencies]
 pyment = "^0.3.3"
+pylint = "^3.2.5"
 
 
 [tool.poetry.group.dev.dependencies]
