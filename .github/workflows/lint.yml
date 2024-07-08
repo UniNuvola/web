@@ -27,8 +27,14 @@ jobs:
         with:
           python-version: 3.12
 
+      - name: Install poetry
+        uses: abatilo/actions-poetry@v2
+        with:
+          poetry-version: 1.8.3
+
       - name: Install Python dependencies
-        run: pip install pylint
+        run: poetry install --with dev,docs
+        # run: pip install pylint
 
       - name: Run linters
         uses: wearerequired/lint-action@v2
