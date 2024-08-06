@@ -3,7 +3,6 @@ from datetime import datetime
 from typing import Dict, List, Any
 
 
-# TODO: gestione loggign (passare instanza app ?)
 class DBManager():
     """Database manager.
 
@@ -15,7 +14,8 @@ class DBManager():
     __dbfile = 'database_richieste.db'
 
 
-    def __init__(self):
+    def __init__(self, app):
+        self.logger = app.logger
         self.__check_db()
 
     def __check_db(self):
@@ -33,24 +33,40 @@ class DBManager():
 
         """
 
+        self.logger.info("Loading Database")
+
         with sqlite3.connect(DBManager.__dbfile) as conn:
             # Check if main table exists
             c = conn.cursor()
-            c.execute(f''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name='{DBManager.__tab_richieste}' ''')
+            q = f'''
+            SELECT count(name) FROM sqlite_master
+            WHERE type='table' AND
+            name='{DBManager.__tab_richieste}'
+            '''
+
+            self.logger.debug("CHECK TABLES: %s", q)
+            c.execute(q)
 
             # Table exists ! No operation needed
             if c.fetchone()[0] == 1:
+                self.logger.debug("TABLE EXISTS !")
+
                 c.close()
                 return
-            
+
             c.close()
 
             # Table do not exists !
             # TODO: potrebbe essere migliorato usando un file SQL che definisce la struttura
             c = conn.cursor()
-            c.execute(f"CREATE TABLE {DBManager.__tab_richieste}(user, start_date, state, end_date)")
+            q = f"CREATE TABLE {DBManager.__tab_richieste}(user, start_date, state, end_date)"
 
+            self.logger.debug("CREATING TABLE %s", DBManager.__tab_richieste)
+            c.execute()
+
+            self.logger.debug("COMMITTING")
             conn.commit()
+
             c.close()
 
     def __dict_factory(self, cursor: sqlite3.Cursor , row: List) -> Dict[str, Any]:
@@ -97,22 +113,37 @@ class DBManager():
         assert user is not None
         assert user != ''
 
+        self.logger.info("NEW REQUEST FOR USER: %s", user)
+
         with sqlite3.connect(DBManager.__dbfile) as conn:
             c = conn.cursor()
-            c.execute(f"SELECT * FROM {DBManager.__tab_richieste} WHERE user = ?", (user,))
+            q = f"SELECT * FROM {DBManager.__tab_richieste} WHERE user = ?"
+            params = (user,)
+
+            self.logger.debug("CHECK DUPLICATE REQUEST: %s %s", q, params)
+            c.execute(q, params)
 
             rows = c.fetchall()
 
             # Prevent saturating DB with a-doc crafted POST request
             # Only one request is admitted per user
             if len(rows) != 0:
+                self.logger.warning("USER %s TRY TO ADD DUPLICATED REQUESTS !!", user)
                 c.close()
 
                 return
 
-            # WARNING:  DeprecationWarning: The default datetime adapter is deprecated as of Python 3.12;
-            #           see the sqlite3 documentation for suggested replacement recipes
-            c.execute(f"INSERT INTO {DBManager.__tab_richieste} VALUES(?, ?, ?, ?)", (user, datetime.now(), 0, None))
+            self.logger.debug("NO DUPLICATED REQUEST 👍")
+
+            q = f"INSERT INTO {DBManager.__tab_richieste} VALUES(?, ?, ?, ?)"
+            params = (user, datetime.now(), 0, None)
+
+            # WARNING:  DeprecationWarning: The default datetime adapter is deprecated
+            #           as of Python 3.12; see the sqlite3 documentation for suggested
+            #           replacement recipes
+            self.logger.debug("ADD REQUEST: %s %s", q, params)
+            c.execute(q, params)
+
             c.close()
             conn.commit()
 
@@ -132,11 +163,16 @@ class DBManager():
         assert user is not None
         assert user != ''
 
+        self.logger.info("DELETE REQUEST FOR USER: %s", user)
+
         with sqlite3.connect(DBManager.__dbfile) as conn:
-            c = conn.cursor()
-            c.execute(f"DELETE FROM {DBManager.__tab_richieste} WHERE user = ?", (user, ))
-            c.close()
-            conn.commit()
+            with conn.cursor() as c:
+                q = f"DELETE FROM {DBManager.__tab_richieste} WHERE user = ?"
+                params = (user, )
+
+                self.logger.debug("DELETE REQUEST: %s %s", q, params)
+                c.execute(q, params)
+                conn.commit()
 
     def update_request_status(self, user: str):
         """ Updates the user's request status
@@ -172,7 +208,7 @@ class DBManager():
 
             rows = c.fetchall()
             c.close()
-            
+
             # only one request per user must exists !
             assert len(rows) == 1
             req_status = rows[0]['state']
@@ -200,7 +236,7 @@ class DBManager():
 
         assert user is not None
         assert user != ''
-        
+
         with sqlite3.connect(DBManager.__dbfile) as conn:
             conn.row_factory = self.__dict_factory
 
@@ -212,7 +248,8 @@ class DBManager():
 
             assert len(rows) <= 1
 
-            return rows[0] if len(rows) == 1 else [] # TODO: 'else' dovrebbe ritornare {} (dict vuoto)
+            # TODO: 'else' dovrebbe ritornare {} (dict vuoto)
+            return rows[0] if len(rows) == 1 else []
 
     def get_all_requests_status(self) -> Dict[str, Any]:
         """Get all user's requests status.
@@ -240,11 +277,11 @@ class DBManager():
 
 
 if __name__ == "__main__":
-    db = DBManager() 
+    db = DBManager()
     # db.delete_request("alice.alice@alice.it")
     # db.add_request('alice.alice@alice.it')
     # db.add_request('bob.bob@bob.it')
-    # print(db.get_request_status("alice.alice@alice.it"))
+    print(db.get_request_status("alice.alice@alice.it"))
     # print(db.get_all_requests_status())
     # db.delete_request("alice.alice@alice.it")
     # db.update_request_status("alice.alice@alice.it")

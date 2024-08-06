@@ -35,7 +35,7 @@ dictConfig({
 
 app = Flask(__name__)
 
-dbms = DBManager()
+dbms = DBManager(app)
 
 app.logger.debug("Loading configs from envs")
 app.config.from_object('src.config')
