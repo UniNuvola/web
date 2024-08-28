@@ -62,7 +62,7 @@ class DBManager():
             q = f"CREATE TABLE {DBManager.__tab_richieste}(user, start_date, state, end_date)"
 
             self.logger.debug("CREATING TABLE %s", DBManager.__tab_richieste)
-            c.execute()
+            c.execute(q)
 
             self.logger.debug("COMMITTING")
             conn.commit()
