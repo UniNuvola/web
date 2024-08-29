@@ -43,6 +43,10 @@ app.config.from_object('src.config')
 app.logger.debug(f"Setting secret key: {app.config['SECRET_KEY']}")
 app.secret_key = app.config['SECRET_KEY']
 
+app.logger.debug("Setting REDIS ip and password: %s %s", app.config['REDIS_IP'], app.config['REDIS_PASSWORD'])
+app.redis_ip = app.config['REDIS_IP']
+app.redis_password = app.config['REDIS_PASSWORD']
+
 app.logger.debug(f"ADMIN USERS: {app.config['ADMIN_USERS']}")
 
 app.logger.debug("Loading OAuth configs")
