@@ -1,7 +1,8 @@
 from logging.config import dictConfig
 from authlib.integrations.flask_client import OAuth
 from flask import Flask
-from .db import DBManager
+from .db_redis import DBManager
+# from .db import DBManager
 
 # Logging Settings
 dictConfig({
@@ -35,8 +36,6 @@ dictConfig({
 
 app = Flask(__name__)
 
-dbms = DBManager(app)
-
 app.logger.debug("Loading configs from envs")
 app.config.from_object('src.config')
 
@@ -48,6 +47,8 @@ app.redis_ip = app.config['REDIS_IP']
 app.redis_password = app.config['REDIS_PASSWORD']
 
 app.logger.debug(f"ADMIN USERS: {app.config['ADMIN_USERS']}")
+
+dbms = DBManager(app)
 
 app.logger.debug("Loading OAuth configs")
 oauth = OAuth(app)
