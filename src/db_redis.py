@@ -122,8 +122,13 @@ class DBManager():
         new_request_status = self.__change_status(request_status)
         self.logger.debug("NEW REQUEST STATUS: %s", new_request_status)
 
+
         self.__set_key(f'{self.__idx}:{user}:{self.__keys["status"]}', new_request_status)
-        self.__set_key(f'{self.__idx}:{user}:{self.__keys["enddate"]}', str(datetime.now()))
+
+        if new_request_status == self.__request_statuses['approved']:
+            self.__set_key(f'{self.__idx}:{user}:{self.__keys["enddate"]}', str(datetime.now()))
+        else:
+            self.__del_key(f'{self.__idx}:{user}:{self.__keys["enddate"]}')
 
     def get_request_data(self, user: str) -> dict[str, str]:
         self.logger.info("GETTING REQUEST DATA: %s", user)
@@ -131,8 +136,16 @@ class DBManager():
         self.__valid_user(user)
 
         request_data = {}
+        request_empty = True
+
         for _, key in self.__keys.items():
             request_data[key] = self.__get_key(f'{self.__idx}:{user}:{key}')
+
+            if request_data[key] is not None:
+                request_empty = False
+
+        if request_empty:
+            return {}
 
         # convert datetime keys from string to datetime
         for key in [self.__keys["startdate"], self.__keys["enddate"]]:
