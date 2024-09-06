@@ -1,0 +1,13 @@
+services:
+    web:
+        networks:
+            uninuvola:
+                ipv4_address: 10.9.245.10
+        container_name: web
+        image: web
+        build: ./
+        env_file: .env
+
+networks:
+  uninuvola:
+    external: true
