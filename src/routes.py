@@ -9,9 +9,12 @@ def homepage():
     app.logger.debug(f"/ User value: {user}")
 
     if user:
+        _username = user['metadata']['name']
+        user['username'] = _username
+
         # ADMIN ROLE
-        if user['contact']['email'] in app.config['ADMIN_USERS']:
-            app.logger.debug(f"User {user['contact']['email']} is ADMIN")
+        if _username in app.config['ADMIN_USERS']:
+            app.logger.debug("User %s is ADMIN", _username)
             user['admin'] = True
 
             if request.method == 'POST':
@@ -20,7 +23,7 @@ def homepage():
 
                 dbms.update_request_status(user_to_update)
 
-            user['request_data'] = dbms.get_all_requests_status()
+            user['request_data'] = dbms.get_all_request_data()
             app.logger.debug(f"ADMIN REQUEST DATA: {user['request_data']}")
 
             return render_template('users/admin.html', user=user)
@@ -30,13 +33,13 @@ def homepage():
 
         match request.method:
             case 'POST':
-                dbms.add_request(user['contact']['email'])
+                dbms.add_request(_username)
             case 'DELETE':
-                dbms.delete_request(user['contact']['email'])
+                dbms.delete_request(_username)
             case _:
                 print(request.method)
 
-        user['request_data'] = dbms.get_request_status(user['contact']['email'])
+        user['request_data'] = dbms.get_request_data(_username)
         app.logger.debug(f"USER REQUEST DATA: {user['request_data']}")
 
         return render_template('users/user.html', user=user)
