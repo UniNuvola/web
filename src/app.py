@@ -55,8 +55,12 @@ oauth = OAuth(app)
 oauth.register(
     name='vault',
     server_metadata_url=app.config['VAULT_CONF_URL'],
-    api_base_url='http://localhost:8200/v1/',
+    # splits CONF_URL in order to obtain <protocol>://<IP>:<PORT>
+    # split(..., 1) perform only 1 split in case of multiple occurrences
+    api_base_url=f"{app.config['VAULT_CONF_URL'].split('/v1', 1)[0]}/v1/",
     client_kwargs={
         'scope': 'openid web'
     }
 )
+
+app.logger.debug("OAUTH CONFIGS: %s", oauth._registry)
