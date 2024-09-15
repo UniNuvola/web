@@ -6,7 +6,8 @@ lint:
 	poetry run pylint $(shell git ls-files '*.py')
 
 build:
-	docker build -t harbor1.fisgeo.unipg.it/uninuvola/$(DIRNAME) .
+	# harbor1.fisgeo.unipg.it/uninuvola/$(DIRNAME)
+	docker build -t $(DIRNAME) .
 
 push: build
 	docker push harbor1.fisgeo.unipg.it/uninuvola/$(DIRNAME):latest 
