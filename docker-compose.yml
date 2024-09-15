@@ -2,7 +2,7 @@ services:
     web:
         networks:
             uninuvola:
-                ipv4_address: 10.9.245.10
+                ipv4_address: $WEB_IP
         container_name: web
         image: web
         build: ./
