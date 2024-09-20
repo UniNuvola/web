@@ -6,7 +6,7 @@ services:
         container_name: web
         image: web
         build: ./
-        env_file: .env
+        env_file: ../.env
 
 networks:
   uninuvola:
