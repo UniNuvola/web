@@ -50,7 +50,8 @@ def homepage():
 @app.route('/login')
 def login():
     app.logger.debug('Redirecting to Vault')
-    redirect_uri = url_for('auth', _external=True)
+    # redirect_uri = url_for('auth', _external=True)
+    redirect_uri = f"{app.public_url}/auth"
     return oauth.vault.authorize_redirect(redirect_uri)
 
 
