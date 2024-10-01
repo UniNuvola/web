@@ -1,5 +1,7 @@
 services:
     web:
+        dns:
+          - $DNS_IP
         networks:
             uninuvola:
                 ipv4_address: $WEB_IP
