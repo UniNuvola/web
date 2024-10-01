@@ -4,8 +4,7 @@ services:
             uninuvola:
                 ipv4_address: $WEB_IP
         container_name: web
-        image: web
-        build: ./
+        image: harbor1.fisgeo.unipg.it/uninuvola/web:latest
         env_file: ../.env
 
 networks:
