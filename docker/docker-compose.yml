@@ -1,10 +1,10 @@
 services:
     web:
         dns:
-          - $DNS_IP
+          - ${DNS_IP}
         networks:
             uninuvola:
-                ipv4_address: $WEB_IP
+                ipv4_address: ${WEB_IP}
         container_name: web
         image: harbor1.fisgeo.unipg.it/uninuvola/web:latest
         env_file: ../.env
