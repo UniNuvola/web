@@ -59,7 +59,13 @@ def login():
 
 @app.route('/auth')
 def auth():
-    token = oauth.vault.authorize_access_token()
+    try:
+        token = oauth.vault.authorize_access_token()
+
+    except Exception as e: # TODO: choose better Exception
+        app.logger.error("Error while autorizing access token, %s", e)
+
+        return redirect(url_for('homepage'))
 
     app.logger.debug('Success user auth')
     app.logger.debug(f'Token: {token}')
