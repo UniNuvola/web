@@ -22,10 +22,12 @@ class DBManager():
             'startdate': 'startdate',
             'enddate': 'enddate',
             'status': 'status',
+            'groups': 'groups',
         }
         self.__request_statuses = {
             'pending': 'pending',
-            'approved': 'approved'
+            'approved': 'approved',
+            'synced': 'synced',
         }
 
 
@@ -57,6 +59,12 @@ class DBManager():
 
     def __get_key(self, key: str) -> str:
         value = self.connection.get(key)
+        self.logger.debug("GET KEY: %s --> %s", key, value)
+
+        return value
+
+    def __get_skey(self, key: str) -> str:
+        value = self.connection.smembers(key)
         self.logger.debug("GET KEY: %s --> %s", key, value)
 
         return value
@@ -139,7 +147,10 @@ class DBManager():
         request_empty = True
 
         for _, key in self.__keys.items():
-            request_data[key] = self.__get_key(f'{self.__idx}:{user}:{key}')
+            if key == self.__keys['groups']:
+                request_data[key] = self.__get_skey(f'{self.__idx}:{user}:{key}')
+            else:
+                request_data[key] = self.__get_key(f'{self.__idx}:{user}:{key}')
 
             if request_data[key] is not None:
                 request_empty = False
