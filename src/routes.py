@@ -10,10 +10,12 @@ def homepage():
 
     if user:
         _username = user['metadata']['name']
+        _groups = dbms.get_request_data(_username)['groups']
         user['username'] = _username
+        user['groups'] = _groups
 
         # ADMIN ROLE
-        if _username in app.config['ADMIN_USERS']:
+        if 'admin' in _groups:
             app.logger.debug("User %s is ADMIN", _username)
             user['admin'] = True
 
