@@ -82,3 +82,7 @@ def logout():
     session.pop('token', None)
 
     return redirect('/')
+
+@app.route('/info')
+def info():
+    return render_template('info.html')
