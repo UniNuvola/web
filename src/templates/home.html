@@ -39,7 +39,7 @@
           {% endif %}
         </div>
 
-        <!-- Prototipo Disclaimer -->
+        {% block disclaimer %}
         <div class="row py-md-2">
           <div class="col">
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -60,6 +60,7 @@
             </div>
           </div> 
         </div>
+        {% endblock %}
 
         {% block body %}{% endblock %}
 
