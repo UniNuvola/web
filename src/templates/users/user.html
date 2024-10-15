@@ -23,9 +23,9 @@
   <h3>Welcome {{user['username']}} 👋</h3>
   <p>Add some text to explain requests </p>
 
-  <h3 class="mt-5">Request status</h3>
 
   {% if user['request_data']|length == 0 %}
+  <h3 class="mt-5">Request status</h3>
   <p>No request found !</p>
   <form method="POST">
     <input type="submit" class="btn btn-primary" value="Require Access 🔓"/>
@@ -43,6 +43,7 @@
       </button></a>
 
     {% else %}
+    <h3 class="mt-5">Request status</h3>
     <table class="table">
       <thead>
         <tr>
