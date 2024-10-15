@@ -110,6 +110,12 @@ class DBManager():
     def delete_request(self, user: str):
         self.__valid_user(user)
 
+        # an approved/synced request cannot be removed !!
+        request_status = self.__get_key(f'{self.__idx}:{user}:{self.__keys["status"]}')
+        if request_status in [self.__request_statuses['approved'], self.__request_statuses['synced']]:
+            self.logger.warning("TRYING TO REMOVE AN APPROVED REQUEST ! Ignoring")
+            return
+
         self.logger.info("DELETE REQUEST FOR USER: %s", user)
 
         q = f'{self.__idx}:{user}:*'
