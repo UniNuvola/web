@@ -10,7 +10,7 @@ def homepage():
 
     if user:
         _username = user['metadata']['name']
-        _groups = dbms.get_request_data(_username)['groups']
+        _groups = dbms.get_request_data(_username).get('groups', [])
         user['username'] = _username
         user['groups'] = _groups
         user['uninuvolaurl'] = 'https://compute.uninuvola.unipg.it/hub/oauth_login?next='
