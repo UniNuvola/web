@@ -52,14 +52,22 @@ def homepage():
 @app.route('/login')
 def login():
     app.logger.debug('Redirecting to Vault')
-    # redirect_uri = url_for('auth', _external=True)
-    redirect_uri = f"{app.public_url}/auth"
+    redirect_uri = url_for('auth', _external=True, _scheme='https')
+
+    app.logger.debug('ALLOWED REDIRECT URI: %s', redirect_uri)
+
     return oauth.vault.authorize_redirect(redirect_uri)
 
 
 @app.route('/auth')
 def auth():
-    token = oauth.vault.authorize_access_token()
+    try:
+        token = oauth.vault.authorize_access_token()
+
+    except Exception as e: # TODO: choose better Exception
+        app.logger.error("Error while autorizing access token, %s", e)
+
+        return redirect(url_for('homepage'))
 
     app.logger.debug('Success user auth')
     app.logger.debug(f'Token: {token}')
