@@ -27,10 +27,15 @@
         <td>{{req['status']}}</td>
         <td>{{ req['enddate'] if req['enddate'] else '-'}}</td>
         <td>
+          {% if req['user']['status'] == 'synced %}
+          <p><i class="bi bi-check-all"></i><p>
+
+          {% else %}
           <form method="POST">
             <input type="hidden" name="id" value="{{req['user']}}"/> 
             <input type="submit" class="btn btn-{{'danger' if req['status']=='approved' else 'primary'}} btn-sm" value="{{'Revoke' if req['status']=='approved' else 'Approve'}}"/>
           </form>
+          {% endif %}
         </td>
       </tr>
       {% endfor %}
