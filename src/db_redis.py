@@ -57,6 +57,10 @@ class DBManager():
         self.logger.debug("SETTING KEY: %s --> %s", key, value)
         self.connection.set(key, value)
 
+    def __add_to_set(self, key: str, values: list):
+        self.logger.debug("ADDING %s TO %s", values, key)
+        self.connection.sadd(key, *values)
+
     def __get_key(self, key: str) -> str:
         value = self.connection.get(key)
         self.logger.debug("GET KEY: %s --> %s", key, value)
@@ -141,6 +145,8 @@ class DBManager():
 
         if new_request_status == self.__request_statuses['approved']:
             self.__set_key(f'{self.__idx}:{user}:{self.__keys["enddate"]}', str(datetime.now()))
+            self.__add_to_set(f'{self.__idx}:{user}:{self.__keys["groups"]}', ["users"])
+
         else:
             self.__del_key(f'{self.__idx}:{user}:{self.__keys["enddate"]}')
 
