@@ -7,7 +7,7 @@
   <h3>Welcome {{user['username']}}</h3>
 
   <div class="position-absolute top-50 start-50 translate-middle">
-    <a href="https://compute.uninuvola.unipg.it/hub/oauth_login?next="><button type="button" class="btn btn-primary btn-lg">
+    <a href="{{ user['uninuvolaurl'] }}"><button type="button" class="btn btn-primary btn-lg">
         Start computing
         <i class="bi bi-rocket-takeoff-fill"></i>
       </button></a>
