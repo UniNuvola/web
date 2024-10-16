@@ -13,6 +13,7 @@ def homepage():
         _groups = dbms.get_request_data(_username)['groups']
         user['username'] = _username
         user['groups'] = _groups
+        user['uninuvolaurl'] = 'https://compute.uninuvola.unipg.it/hub/oauth_login?next='
 
         # ADMIN ROLE
         if 'admin' in _groups:
