@@ -7,7 +7,7 @@
   <h3>Welcome {{user['username']}}</h3>
 
   <div class="position-absolute top-50 start-50 translate-middle">
-    <a href="https://compute.uninuvola.unipg.it/"><button type="button" class="btn btn-primary btn-lg">
+    <a href="https://compute.uninuvola.unipg.it/hub/oauth_login?next="><button type="button" class="btn btn-primary btn-lg">
         Start computing
         <i class="bi bi-rocket-takeoff-fill"></i>
       </button></a>
@@ -33,7 +33,7 @@
         <td>{{req['status']}}</td>
         <td>{{ req['enddate'] if req['enddate'] else '-'}}</td>
         <td>
-          {% if req['user']['status'] == 'synced %}
+          {% if req['status'] == 'synced' %}
           <p><i class="bi bi-check-all"></i><p>
 
           {% else %}
