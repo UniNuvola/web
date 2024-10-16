@@ -3,35 +3,19 @@
 {% block script %}
 {% endblock%}
 
+{% block disclaimer %}
+{% endblock%}
+
 
 {% block body %}
-<!-- Description and Login -->
 <div class="row mx-auto py-md-2">
   <div class="col">
-    <p class="fs-5">
-      UniNuvola is a web-based service that enables members of Università degli Studi di Perugia to perform high-performance
-      calculations in various research fields, such as Deep Learning, Computational Chemistry, and Simulations.
-      This innovative platform leverages the power of distributed computing to accelerate complex calculations,
-      making it easier for researchers to focus on their work while benefiting from enhanced computational resources.
-
-      <h3>Key Features</h3>
-
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item"><b> - Distributed Computing</b>: UniNuvola utilizes a distributed architecture to harness the collective processing power of multiple machines, enabling users to perform large-scale simulations and computations that would be impractical or impossible with traditional local computing.</li>
-        <li class="list-group-item"><b> - Cloud-based Infrastructure</b>: The service is built on a cloud-based infrastructure, ensuring scalability, flexibility, and reliability for users.</li>
-        <li class="list-group-item"><b> - User-Friendly Interface</b>: UniNuvola features an intuitive web interface that allows researchers to easily submit jobs, monitor progress, and retrieve results, minimizing the need for specialized IT knowledge.</li>
-        <li class="list-group-item"><b> - Support for Various Research Fields</b>: The service is designed to support a range of research areas, including Deep Learning, Computational Chemistry, and Simulations, allowing users to tackle complex problems in their respective fields.</li>
-      </ul>
-
-      <h3>Goals</h3>
-
-      The UniNuvola project aims to create a robust and user-friendly distributed computing service that supports
-      the research needs of the University community.
-      By providing an innovative platform for high-performance calculations, UniNuvola seeks to enhance research productivity,
-      facilitate collaboration, and foster innovation in various fields of study.
-    </p>
-
-    <a href="/login"><button type="button" class="btn btn-primary">Login &nbsp;  🚀</button></a>
+    <div class="position-absolute top-50 start-50 translate-middle">
+      <a href="/login"><button type="button" class="btn btn-primary btn-lg fs-1" style="width: fill">
+          Login
+          <i class="bi bi-box-arrow-left"></i>
+        </button></a>
+    </div>
   </div>
 </div>
 {% endblock%}
