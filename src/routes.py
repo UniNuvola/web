@@ -11,7 +11,7 @@ def homepage():
     if user:
         _username = user['metadata']['name']
         _groups = dbms.get_request_data(_username).get('groups', [])
-        _infos = dbms.get_user_infos(user)
+        _infos = dbms.get_user_infos(_username)
         user['username'] = _username
         user['groups'] = _groups
         user['infos'] = _infos
