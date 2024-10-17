@@ -230,7 +230,7 @@ class DBManager():
 
         self.logger.debug("USER INFOS: %s", user_infos)
 
-        if request_empty:
+        if infos_empty:
             return {}
         
         return user_infos
