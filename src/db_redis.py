@@ -1,5 +1,6 @@
 from datetime import datetime
 import redis
+import requests
 
 
 class DBManager():
@@ -8,6 +9,8 @@ class DBManager():
         self.logger = app.logger
         self.REDIS_IP = app.redis_ip
         self.REDIS_PASSWORD = app.redis_password
+        self.LDAPSYNC_IP = app.ldapsync_ip
+        self.LDAPSYNC_PORT = app.ldapsync_port
 
         self.connection = redis.Redis(
             host=self.REDIS_IP,
@@ -31,6 +34,10 @@ class DBManager():
             'synced': 'synced',
         }
 
+    def __notify_ldapsync(self):
+        self.logger.info('NOTIFY LDAPSYNC')
+        r = requests.get(url=f"{self.LDAPSYNC_IP}:{self.LDAPSYNC_PORT}")
+        self.logger.debug("TRIGGERED LDAPSYNC, RESPONSE: %s", r)
 
     def __del__(self):
         self.logger.debug("Closing DB connection")
@@ -112,6 +119,8 @@ class DBManager():
             self.__request_statuses['pending'],
         )
 
+        self.__notify_ldapsync()
+
     def delete_request(self, user: str):
         self.__valid_user(user)
 
@@ -147,6 +156,7 @@ class DBManager():
         if new_request_status == self.__request_statuses['approved']:
             self.__set_key(f'{self.__idx}:{user}:{self.__keys["enddate"]}', str(datetime.now()))
             self.__add_to_set(f'{self.__idx}:{user}:{self.__keys["groups"]}', ["users"])
+            self.__notify_ldapsync()
 
         else:
             self.__del_key(f'{self.__idx}:{user}:{self.__keys["enddate"]}')
