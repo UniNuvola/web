@@ -223,9 +223,10 @@ class DBManager():
         self.logger.debug("USER %s KEYS: %s", user, infokeys)
 
         for key in infokeys:
-            user_infos[key] = self.__get_key(f'{self.__infoidx}:{user}:{key}')
+            dictkey = key.split(':')[-1]
+            user_infos[dictkey] = self.__get_key(key)
 
-            if user_infos[key] is not None:
+            if user_infos[dictkey] is not None:
                 infos_empty = False
 
         self.logger.debug("USER INFOS: %s", user_infos)
