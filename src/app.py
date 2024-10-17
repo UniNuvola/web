@@ -46,7 +46,9 @@ app.logger.debug("Setting REDIS ip and password: %s %s", app.config['REDIS_IP'],
 app.redis_ip = app.config['REDIS_IP']
 app.redis_password = app.config['REDIS_PASSWORD']
 
-app.logger.debug(f"ADMIN USERS: {app.config['ADMIN_USERS']}")
+app.logger.debug("Setting LDAPSYNC ip and port: %s %s", app.config['LDAPSYNC_IP'], app.config['LDAPSYNC_PORT'])
+app.ldapsync_ip = app.config['LDAPSYNC_IP']
+app.ldapsync_port = app.config['LDAPSYNC_PORT']
 
 app.logger.debug("SERVER NAME: %s", app.config['SERVER_NAME'])
 
