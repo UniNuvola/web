@@ -220,7 +220,7 @@ class DBManager():
         infos_empty = True
         infokeys = self.connection.keys(f'{self.__infoidx}:{user}:*')
 
-        self.logger.debug("USER %s KEYS: ", user, infokeys)
+        self.logger.debug("USER %s KEYS: %s", user, infokeys)
 
         for key in infokeys:
             user_infos[key] = self.__get_key(f'{self.__infoidx}:{user}:{key}')
