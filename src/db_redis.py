@@ -206,6 +206,7 @@ class DBManager():
         for user in users:
             request_data = self.get_request_data(user)
             request_data['user'] = user
+            request_data['infos'] = self.get_user_infos(user)
 
             all_requests_data.append(request_data)
 
