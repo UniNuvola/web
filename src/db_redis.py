@@ -36,7 +36,7 @@ class DBManager():
 
     def __notify_ldapsync(self):
         self.logger.info('NOTIFY LDAPSYNC')
-        r = requests.get(url=f"{self.LDAPSYNC_IP}:{self.LDAPSYNC_PORT}")
+        r = requests.get(url=f"http://{self.LDAPSYNC_IP}:{self.LDAPSYNC_PORT}")
         self.logger.debug("TRIGGERED LDAPSYNC, RESPONSE: %s", r)
 
     def __del__(self):
