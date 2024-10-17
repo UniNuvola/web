@@ -18,6 +18,7 @@ class DBManager():
 
         # consts
         self.__idx = 'req'
+        self.__infoidx = 'info'
         self.__keys = {
             'startdate': 'startdate',
             'enddate': 'enddate',
@@ -209,3 +210,27 @@ class DBManager():
             all_requests_data.append(request_data)
 
         return all_requests_data
+
+    def get_user_infos(self, user: str) -> dict:
+        self.logger.info("GETTING USER %s INFOS", user)
+
+        self.__valid_user(user)
+
+        user_infos = {}
+        infos_empty = True
+        infokeys = self.connection.keys(f'{self.__infoidx}:{user}:*')
+
+        self.logger.debug("USER %s KEYS: ", user, infokeys)
+
+        for key in infokeys:
+            user_infos[key] = self.__get_key(f'{self.__infoidx}:{user}:{key}')
+
+            if user_infos[key] is not None:
+                infos_empty = False
+
+        self.logger.debug("USER INFOS: %s", user_infos)
+
+        if request_empty:
+            return {}
+        
+        return user_infos

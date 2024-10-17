@@ -11,8 +11,10 @@ def homepage():
     if user:
         _username = user['metadata']['name']
         _groups = dbms.get_request_data(_username).get('groups', [])
+        _infos = dbms.get_user_infos(user)
         user['username'] = _username
         user['groups'] = _groups
+        user['infos'] = _infos
         user['uninuvolaurl'] = 'https://compute.uninuvola.unipg.it/hub/oauth_login?next='
 
         # ADMIN ROLE
