@@ -97,3 +97,7 @@ def logout():
 @app.route('/info')
 def info():
     return render_template('info.html')
+
+@app.route('/docs')
+def docs():
+    return render_template('docs.html')
