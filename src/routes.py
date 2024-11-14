@@ -85,12 +85,10 @@ def logout():
     token = session.get('token')
 
     app.logger.debug(f'Logging out {token}')
-
-    oauth.vault.post('auth/token/revoke-self', token=token)
+    oauth.vault.post('auth/token/revoke', token=token)
 
     app.logger.debug('Cleaning session values')
-    session.pop('user', None)
-    session.pop('token', None)
+    session.clear()
 
     return redirect('/')
 
