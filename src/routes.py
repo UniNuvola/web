@@ -1,5 +1,6 @@
 from flask import url_for, session, request, render_template, redirect
 from .app import app, dbms, oauth, socketio
+import requests
 
 
 @app.route('/', methods=['GET', 'POST', 'DELETE'])
@@ -95,6 +96,9 @@ def logout():
 @socketio.on('disconnect')
 def on_session_close():
     logout()
+
+    app.logger.debug('Calling Vault to Logout')
+    _ = requests.get(url="https://vault.unipg.it/ui/vault/logout")
 
 @app.route('/info')
 def info():
