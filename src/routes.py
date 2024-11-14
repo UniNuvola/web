@@ -1,5 +1,5 @@
 from flask import url_for, session, request, render_template, redirect
-from .app import app, dbms, oauth
+from .app import app, dbms, oauth, socketio
 
 
 @app.route('/', methods=['GET', 'POST', 'DELETE'])
@@ -91,6 +91,10 @@ def logout():
     session.clear()
 
     return redirect('/')
+
+@socketio.on('disconnect')
+def on_session_close():
+    logout()
 
 @app.route('/info')
 def info():

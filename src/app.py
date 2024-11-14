@@ -1,6 +1,7 @@
 from logging.config import dictConfig
 from authlib.integrations.flask_client import OAuth
 from flask import Flask
+from flask_socketio import SocketIO #, emit
 from .db_redis import DBManager
 # from .db import DBManager
 
@@ -68,3 +69,5 @@ oauth.register(
 )
 
 app.logger.debug("OAUTH CONFIGS: %s", oauth._registry)
+
+socketio = SocketIO(app)
