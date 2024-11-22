@@ -12,6 +12,10 @@ ifeq ($(DEPLOYED),)
     $(error "Missing DEPLOYED")
 endif
 
+.PHONY: compile
+compile:
+	cd .. && make
+
 .PHONY: build
 build: check
 	cd .. && docker build -t $(IMAGE):$(shell date +%Y-%m-%d) -f docker/Dockerfile .
