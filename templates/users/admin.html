@@ -1,0 +1,65 @@
+{% extends 'home.html' %}
+
+{% block script %}
+{% endblock%}
+
+{% block body %}
+<!-- TODO: get User.Info[name] if exists-->
+  <h3>Welcome {{user.User}}</h3>
+
+  <div class="position-absolute top-50 start-50 translate-middle">
+    <a href="{{ uninuvolaurl }}"><button type="button" class="btn btn-primary btn-lg">
+        Start computing
+        <i class="bi bi-rocket-takeoff-fill"></i>
+      </button></a>
+  </div>
+
+  <h3 class="mt-5">Request status</h3>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Name</th>
+        <th>User</th>
+        <th>State</th>
+        <th>Accepted Date</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for req in allRequests %}
+      <tr>
+        <td>{{req.Startdate}}</td>
+        <td>{{req.Infos.name}}</td>
+        <td>{{req.User}}</td>
+        <td>{{req.Status}}</td>
+        <td>{{req.Enddate}}</td>
+        <td>
+          {% if req.Status == "synced" %}
+          <p><i class="bi bi-check-all"></i><p>
+
+          {% else %}
+          <form method="POST">
+            <input type="hidden" name="id" value="{{req.User}}"/> 
+            <input type="submit" class="btn btn-
+             {% if req.Status == "approved"%}
+              danger
+             {% else %}
+              primary
+             {% endif %}
+            btn-sm" value="
+              {% if req.Status == "approved" %}
+                Revoke
+              {% else %}
+                Approve
+              {% endif %}
+            "/>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock%}
