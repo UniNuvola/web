@@ -59,7 +59,12 @@ def login():
 
     app.logger.debug('ALLOWED REDIRECT URI: %s', redirect_uri)
 
-    return oauth.vault.authorize_redirect(redirect_uri)
+    # TODO: test if added params are valid !!
+    return oauth.vault.authorize_redirect(
+        redirect_uri,
+        max_age=3600,    # Maximum session age in seconds (e.g., 1 hour)
+        prompt='login',  # Force re-authentication
+    )
 
 
 @app.route('/auth')
