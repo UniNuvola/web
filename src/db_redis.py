@@ -220,7 +220,7 @@ class DBManager():
 
             all_requests_data.append(request_data)
 
-        return all_requests_data
+        return sorted(all_requests_data, key=lambda d: d["startdate"])
 
     def get_user_infos(self, user: str) -> dict:
         self.logger.info("GETTING USER %s INFOS", user)
