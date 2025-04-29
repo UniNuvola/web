@@ -8,22 +8,46 @@
 
 {% block body %}
 <!-- Description and Login -->
-<div class="row mx-auto py-md-2">
-  <div class="card" style="width: 18rem;">
-    <!-- <img src="..." class="card-img-top" alt="..."> -->
-    <div class="card-body">
-      <h2 class="card-title">Documentation</h2>
-      <p class="card-text">Here you can find all the user documentation about the UniNuvola project.</p>
+<section class="text-center mb-5">
+  <h1 class="display-5">Documentation</h1>
+  <p class="lead">Here you can find all the user documentation about the UniNuvola project.</p>
+</section>
 
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item">
-          <a class="btn btn-link" href="https://github.com/UniNuvola/quickstart/releases/latest/download/main.pdf" about="_blank">
-            <i class="bi bi-file-pdf" style="color:red"></i> Quickstart guide
-          </a>
-        </li>
-      </ul>
+<section>
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="col">
+      <div class="card h-100 text-center">
+        <div class="card-body">
+          <h3 class="card-title">
+            <a href="https://github.com/UniNuvola/documentation/releases/latest/download/quickstart.pdf" class="link-primary">
+              <i class="bi bi-file-pdf text-danger"></i> Quickstart Guide
+            </a>
+          </h3>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card h-100 text-center">
+        <div class="card-body">
+          <h3 class="card-title">
+            <a href="https://github.com/UniNuvola/documentation/releases/latest/download/customimages.pdf" class="link-primary">
+              <i class="bi bi-file-pdf text-danger"></i> Custom Images
+            </a>
+          </h3>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card h-100 text-center">
+        <div class="card-body">
+          <h3 class="card-title">
+            <a href="https://github.com/UniNuvola/documentation/releases/latest/download/manual.pdf" class="link-primary">
+              <i class="bi bi-file-pdf text-danger"></i> User Manual
+            </a>
+          </h3>
+        </div>
+      </div>
     </div>
   </div>
-
-</div>
+</section>
 {% endblock%}
