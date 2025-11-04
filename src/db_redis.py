@@ -3,8 +3,7 @@ import redis
 import requests
 
 
-class DBManager():
-
+class DBManager:
     def __init__(self, app):
         self.logger = app.logger
         self.REDIS_IP = app.redis_ip
@@ -20,24 +19,28 @@ class DBManager():
         )
 
         # consts
-        self.__idx = 'req'
-        self.__infoidx = 'info'
+        self.__idx = "req"
+        self.__infoidx = "info"
         self.__keys = {
-            'startdate': 'startdate',
-            'enddate': 'enddate',
-            'status': 'status',
-            'groups': 'groups',
+            "startdate": "startdate",
+            "enddate": "enddate",
+            "status": "status",
+            "groups": "groups",
         }
         self.__request_statuses = {
-            'pending': 'pending',
-            'approved': 'approved',
-            'synced': 'synced',
+            "pending": "pending",
+            "approved": "approved",
+            "synced": "synced",
         }
 
     def __notify_ldapsync(self):
-        self.logger.info('NOTIFY LDAPSYNC')
-        r = requests.get(url=f"http://{self.LDAPSYNC_IP}:{self.LDAPSYNC_PORT}")
-        self.logger.debug("TRIGGERED LDAPSYNC, RESPONSE: %s", r)
+        self.logger.info("NOTIFY LDAPSYNC")
+        try:
+            r = requests.get(
+                url=f"http://{self.LDAPSYNC_IP}:{self.LDAPSYNC_PORT}")
+            self.logger.debug("TRIGGERED LDAPSYNC, RESPONSE: %s", r)
+        except Exception as e:
+            self.logger.error("CANNOT REACH LDAPSYNC ! ERROR: %s", e)
 
     def __del__(self):
         self.logger.debug("Closing DB connection")
@@ -45,12 +48,12 @@ class DBManager():
 
     def __valid_user(self, user: str):
         assert user is not None
-        assert user != ''
+        assert user != ""
 
     def __request_exists(self, user: str):
         self.__valid_user(user)
 
-        q = f'{self.__idx}:{user}:*'
+        q = f"{self.__idx}:{user}:*"
 
         self.logger.debug("DUPLICATE SCAN QUERY: %s", q)
         _, keys = self.connection.scan(match=q)
@@ -86,10 +89,10 @@ class DBManager():
         self.connection.delete(key)
 
     def __change_status(self, status: str):
-        if status == self.__request_statuses['pending']:
-            return self.__request_statuses['approved']
+        if status == self.__request_statuses["pending"]:
+            return self.__request_statuses["approved"]
 
-        return self.__request_statuses['pending']
+        return self.__request_statuses["pending"]
 
         # match status:
         #     case self.__request_statuses.get('pending'):
@@ -105,18 +108,19 @@ class DBManager():
         # Prevent saturating DB with a-doc crafted POST request
         # Only one request is admitted per user
         if self.__request_exists(user):
-            self.logger.warning("USER %s TRY TO ADD DUPLICATED REQUESTS !!", user)
+            self.logger.warning(
+                "USER %s TRY TO ADD DUPLICATED REQUESTS !!", user)
             return
 
         self.logger.debug("NO DUPLICATED REQUEST 👍")
 
         self.__set_key(
-            f'{self.__idx}:{user}:{self.__keys["startdate"]}',
+            f"{self.__idx}:{user}:{self.__keys['startdate']}",
             str(datetime.now()),
         )
         self.__set_key(
-            f'{self.__idx}:{user}:{self.__keys["status"]}',
-            self.__request_statuses['pending'],
+            f"{self.__idx}:{user}:{self.__keys['status']}",
+            self.__request_statuses["pending"],
         )
 
         self.__notify_ldapsync()
@@ -125,14 +129,19 @@ class DBManager():
         self.__valid_user(user)
 
         # an approved/synced request cannot be removed !!
-        request_status = self.__get_key(f'{self.__idx}:{user}:{self.__keys["status"]}')
-        if request_status in [self.__request_statuses['approved'], self.__request_statuses['synced']]:
-            self.logger.warning("TRYING TO REMOVE AN APPROVED REQUEST ! Ignoring")
+        request_status = self.__get_key(
+            f"{self.__idx}:{user}:{self.__keys['status']}")
+        if request_status in [
+            self.__request_statuses["approved"],
+            self.__request_statuses["synced"],
+        ]:
+            self.logger.warning(
+                "TRYING TO REMOVE AN APPROVED REQUEST ! Ignoring")
             return
 
         self.logger.info("DELETE REQUEST FOR USER: %s", user)
 
-        q = f'{self.__idx}:{user}:*'
+        q = f"{self.__idx}:{user}:*"
         self.logger.debug("DELETE SCAN QUERY: %s", q)
 
         for key in self.connection.scan_iter(q):
@@ -143,23 +152,29 @@ class DBManager():
 
         self.logger.info("UPDATING USER REQUEST STATUS: %s", user)
 
-        request_status = self.__get_key(f'{self.__idx}:{user}:{self.__keys["status"]}')
+        request_status = self.__get_key(
+            f"{self.__idx}:{user}:{self.__keys['status']}")
 
         assert request_status is not None
 
         new_request_status = self.__change_status(request_status)
         self.logger.debug("NEW REQUEST STATUS: %s", new_request_status)
 
+        self.__set_key(
+            f"{self.__idx}:{user}:{self.__keys['status']}", new_request_status
+        )
 
-        self.__set_key(f'{self.__idx}:{user}:{self.__keys["status"]}', new_request_status)
-
-        if new_request_status == self.__request_statuses['approved']:
-            self.__set_key(f'{self.__idx}:{user}:{self.__keys["enddate"]}', str(datetime.now()))
-            self.__add_to_set(f'{self.__idx}:{user}:{self.__keys["groups"]}', ["users"])
+        if new_request_status == self.__request_statuses["approved"]:
+            self.__set_key(
+                f"{self.__idx}:{user}:{
+                    self.__keys['enddate']}", str(datetime.now())
+            )
+            self.__add_to_set(f"{self.__idx}:{user}:{
+                              self.__keys['groups']}", ["users"])
             self.__notify_ldapsync()
 
         else:
-            self.__del_key(f'{self.__idx}:{user}:{self.__keys["enddate"]}')
+            self.__del_key(f"{self.__idx}:{user}:{self.__keys['enddate']}")
 
     def get_request_data(self, user: str) -> dict[str, str]:
         self.logger.info("GETTING REQUEST DATA: %s", user)
@@ -170,10 +185,12 @@ class DBManager():
         request_empty = True
 
         for _, key in self.__keys.items():
-            if key == self.__keys['groups']:
-                request_data[key] = self.__get_skey(f'{self.__idx}:{user}:{key}')
+            if key == self.__keys["groups"]:
+                request_data[key] = self.__get_skey(
+                    f"{self.__idx}:{user}:{key}")
             else:
-                request_data[key] = self.__get_key(f'{self.__idx}:{user}:{key}')
+                request_data[key] = self.__get_key(
+                    f"{self.__idx}:{user}:{key}")
 
             # `request_data[key]` could be `None` (because it's a string Key) or
             # `set()` (because it's a set Key), respectively generated by `__get_key()` and
@@ -188,10 +205,19 @@ class DBManager():
         # convert datetime keys from string to datetime
         for key in [self.__keys["startdate"], self.__keys["enddate"]]:
             try:
-                request_data[key] = datetime.strptime(request_data[key], '%Y-%m-%d %H:%M:%S.%f')
+                request_data[key] = datetime.strptime(
+                    request_data[key], "%Y-%m-%d %H:%M:%S.%f"
+                )
 
-            except (ValueError, TypeError,):
-                self.logger.error("Wrong datetime format in %s: %s", f'{user}:{key}', request_data[key])
+            except (
+                ValueError,
+                TypeError,
+            ):
+                self.logger.error(
+                    "Wrong datetime format in %s: %s",
+                    f"{user}:{key}",
+                    request_data[key],
+                )
                 request_data[key] = None
 
                 continue
@@ -202,7 +228,7 @@ class DBManager():
         self.logger.info("GETTING ALL REQUESTS DATA")
 
         users = []
-        q = f'{self.__idx}:*'
+        q = f"{self.__idx}:*"
         self.logger.debug("ALL REQUESTS SCAN QUERY: %s", q)
 
         for key in self.connection.scan_iter(q):
@@ -215,8 +241,8 @@ class DBManager():
         all_requests_data = []
         for user in users:
             request_data = self.get_request_data(user)
-            request_data['user'] = user
-            request_data['infos'] = self.get_user_infos(user)
+            request_data["user"] = user
+            request_data["infos"] = self.get_user_infos(user)
 
             all_requests_data.append(request_data)
 
@@ -229,12 +255,12 @@ class DBManager():
 
         user_infos = {}
         infos_empty = True
-        infokeys = self.connection.keys(f'{self.__infoidx}:{user}:*')
+        infokeys = self.connection.keys(f"{self.__infoidx}:{user}:*")
 
         self.logger.debug("USER %s KEYS: %s", user, infokeys)
 
         for key in infokeys:
-            dictkey = key.split(':')[-1]
+            dictkey = key.split(":")[-1]
             user_infos[dictkey] = self.__get_key(key)
 
             if user_infos[dictkey] is not None:
@@ -244,5 +270,5 @@ class DBManager():
 
         if infos_empty:
             return {}
-        
+
         return user_infos
