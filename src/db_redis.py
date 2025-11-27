@@ -166,8 +166,7 @@ class DBManager:
 
         if new_request_status == self.__request_statuses["approved"]:
             self.__set_key(
-                f"{self.__idx}:{user}:{
-                    self.__keys['enddate']}", str(datetime.now())
+                f"{self.__idx}:{user}:{self.__keys['enddate']}", str(datetime.now())
             )
             self.__add_to_set(f"{self.__idx}:{user}:{
                               self.__keys['groups']}", ["users"])
