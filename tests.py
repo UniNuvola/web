@@ -12,8 +12,10 @@ Run this module directly to execute the Redis database tests:
 """
 import logging
 import os
-from flask import Flask
+
 from dotenv import load_dotenv
+from flask import Flask
+
 from src.db_redis import DBManager
 
 
