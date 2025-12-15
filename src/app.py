@@ -1,3 +1,25 @@
+"""
+Flask application initialization and configuration module.
+
+This module sets up the Flask application with logging configuration,
+OAuth authentication via HashiCorp Vault, and database connection management.
+It serves as the central entry point for the web application.
+
+The module configures:
+    - Logging handlers (WSGI stream and file output)
+    - Flask application instance and secret key
+    - Redis database connection for request management
+    - OAuth client registration with HashiCorp Vault
+
+Attributes
+----------
+app : Flask
+    The Flask application instance.
+dbms : DBManager
+    The database manager instance for handling user requests.
+oauth : OAuth
+    The OAuth client configured for Vault authentication.
+"""
 from logging.config import dictConfig
 from authlib.integrations.flask_client import OAuth
 from flask import Flask

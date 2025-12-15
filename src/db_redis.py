@@ -1,9 +1,49 @@
+"""
+Redis database manager for UniNuvola user request management.
+
+This module provides a database manager class that interfaces with Redis
+to store and manage user access requests. It handles request lifecycle
+including creation, status updates, approval workflows, and LDAP synchronization.
+
+Classes
+-------
+DBManager
+    Manager class for Redis-based user request storage and retrieval.
+"""
 from datetime import datetime
 import redis
 import requests
 
 
 class DBManager:
+    """
+    Redis database manager for user access requests.
+
+    This class provides methods to manage user requests stored in Redis,
+    including creating, updating, deleting, and querying requests.
+    It also handles notification of the LDAP sync service when requests
+    are created or approved.
+
+    Attributes
+    ----------
+    logger : logging.Logger
+        Logger instance for debugging and error reporting.
+    REDIS_IP : str
+        IP address of the Redis server.
+    REDIS_PASSWORD : str
+        Password for Redis authentication.
+    LDAPSYNC_IP : str
+        IP address of the LDAP sync service.
+    LDAPSYNC_PORT : str
+        Port of the LDAP sync service.
+    connection : redis.Redis
+        Redis connection instance.
+
+    Parameters
+    ----------
+    app : Flask
+        Flask application instance containing configuration attributes.
+    """
     def __init__(self, app):
         self.logger = app.logger
         self.REDIS_IP = app.redis_ip
@@ -101,6 +141,23 @@ class DBManager:
         #         return self.__request_statuses['pending']
 
     def add_request(self, user: str):
+        """
+        Add a new access request for a user.
+
+        Creates a new request entry in Redis with pending status and current
+        timestamp. Prevents duplicate requests from the same user.
+        Notifies the LDAP sync service after successful creation.
+
+        Parameters
+        ----------
+        user : str
+            Unique identifier (username) of the user making the request.
+
+        Notes
+        -----
+        If the user already has an existing request, the operation is
+        silently ignored and a warning is logged.
+        """
         self.__valid_user(user)
 
         self.logger.info("NEW REQUEST FOR USER: %s", user)
@@ -126,6 +183,23 @@ class DBManager:
         self.__notify_ldapsync()
 
     def delete_request(self, user: str):
+        """
+        Delete a user's access request from the database.
+
+        Removes all Redis keys associated with the user's request.
+        Approved or synced requests cannot be deleted for security reasons.
+
+        Parameters
+        ----------
+        user : str
+            Unique identifier (username) of the user whose request
+            should be deleted.
+
+        Notes
+        -----
+        If the request has been approved or synced, the deletion is
+        silently ignored and a warning is logged.
+        """
         self.__valid_user(user)
 
         # an approved/synced request cannot be removed !!
@@ -148,6 +222,24 @@ class DBManager:
             self.__del_key(key)
 
     def update_request_status(self, user: str):
+        """
+        Toggle the status of a user's access request.
+
+        Switches the request status between 'pending' and 'approved'.
+        When approved, sets the end date and adds the user to the 'users'
+        group, then notifies the LDAP sync service.
+
+        Parameters
+        ----------
+        user : str
+            Unique identifier (username) of the user whose request
+            status should be updated.
+
+        Raises
+        ------
+        AssertionError
+            If the request does not exist for the given user.
+        """
         self.__valid_user(user)
 
         self.logger.info("UPDATING USER REQUEST STATUS: %s", user)
@@ -176,6 +268,28 @@ class DBManager:
             self.__del_key(f"{self.__idx}:{user}:{self.__keys['enddate']}")
 
     def get_request_data(self, user: str) -> dict[str, str]:
+        """
+        Retrieve all data associated with a user's request.
+
+        Fetches the request's start date, end date, status, and groups
+        from Redis and returns them as a dictionary.
+
+        Parameters
+        ----------
+        user : str
+            Unique identifier (username) of the user whose request
+            data should be retrieved.
+
+        Returns
+        -------
+        dict[str, str]
+            Dictionary containing request data with keys:
+            - 'startdate': Request creation timestamp
+            - 'enddate': Approval timestamp (if approved)
+            - 'status': Current request status
+            - 'groups': Set of groups the user belongs to
+            Returns empty dict if no request exists.
+        """
         self.logger.info("GETTING REQUEST DATA: %s", user)
 
         self.__valid_user(user)
@@ -224,6 +338,19 @@ class DBManager:
         return request_data
 
     def get_all_request_data(self):
+        """
+        Retrieve data for all user requests in the database.
+
+        Scans all request keys in Redis and aggregates data for each
+        unique user. Results are sorted by start date in descending order.
+
+        Returns
+        -------
+        list[dict]
+            List of dictionaries, each containing request data for a user.
+            Each dictionary includes 'user', 'infos', and all request fields.
+            Sorted by 'startdate' in descending order (newest first).
+        """
         self.logger.info("GETTING ALL REQUESTS DATA")
 
         users = []
@@ -248,6 +375,24 @@ class DBManager:
         return sorted(all_requests_data, key=lambda d: d["startdate"], reverse=True)
 
     def get_user_infos(self, user: str) -> dict:
+        """
+        Retrieve additional information about a user.
+
+        Fetches user metadata stored under the info index in Redis,
+        such as display name, email, or other profile information.
+
+        Parameters
+        ----------
+        user : str
+            Unique identifier (username) of the user whose information
+            should be retrieved.
+
+        Returns
+        -------
+        dict
+            Dictionary containing user information key-value pairs.
+            Returns empty dict if no information exists for the user.
+        """
         self.logger.info("GETTING USER %s INFOS", user)
 
         self.__valid_user(user)

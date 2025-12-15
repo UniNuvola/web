@@ -1,9 +1,41 @@
+"""
+Flask route handlers for the UniNuvola web application.
+
+This module defines all HTTP route handlers for the application,
+including the homepage with user/admin views, authentication endpoints,
+and informational pages.
+
+Routes
+------
+/ : Homepage with user request management
+/login : OAuth login redirect to Vault
+/auth : OAuth callback handler
+/logout : Session logout and token revocation
+/info : Information page
+/docs : Documentation page
+"""
 from flask import url_for, session, request, render_template, redirect
 from .app import app, dbms, oauth
 
 
 @app.route('/', methods=['GET', 'POST', 'DELETE'])
 def homepage():
+    """
+    Handle the main homepage with user/admin views.
+
+    For authenticated users, displays either the admin dashboard
+    (if user has 'admin' group) or the user request interface.
+    Handles POST requests for request creation/approval and
+    DELETE requests for request removal.
+
+    Returns
+    -------
+    str
+        Rendered HTML template:
+        - 'users/admin.html' for admin users
+        - 'users/user.html' for regular users
+        - 'users/unlogged.html' for unauthenticated visitors
+    """
     user = session.get('user')
 
     app.logger.debug(f"/ User value: {user}")
@@ -54,6 +86,17 @@ def homepage():
 
 @app.route('/login')
 def login():
+    """
+    Redirect user to Vault OAuth login page.
+
+    Initiates the OAuth authorization flow by redirecting the user
+    to the HashiCorp Vault identity provider.
+
+    Returns
+    -------
+    Response
+        Redirect response to Vault's OAuth authorization endpoint.
+    """
     app.logger.debug('Redirecting to Vault')
     redirect_uri = url_for('auth', _external=True, _scheme='https')
 
@@ -64,6 +107,18 @@ def login():
 
 @app.route('/auth')
 def auth():
+    """
+    Handle OAuth callback from Vault.
+
+    Processes the OAuth authorization response, exchanges the
+    authorization code for an access token, and stores the user
+    information in the session.
+
+    Returns
+    -------
+    Response
+        Redirect to homepage on success or failure.
+    """
     try:
         token = oauth.vault.authorize_access_token()
 
@@ -82,6 +137,17 @@ def auth():
 
 @app.route('/logout')
 def logout():
+    """
+    Log out the current user.
+
+    Revokes the OAuth token with Vault and clears the user's
+    session data.
+
+    Returns
+    -------
+    Response
+        Redirect to homepage.
+    """
     token = session.get('token')
 
     app.logger.debug(f'Logging out {token}')
@@ -96,8 +162,28 @@ def logout():
 
 @app.route('/info')
 def info():
+    """
+    Render the information page.
+
+    Displays general information about the UniNuvola platform.
+
+    Returns
+    -------
+    str
+        Rendered 'info.html' template.
+    """
     return render_template('info.html')
 
 @app.route('/docs')
 def docs():
+    """
+    Render the documentation page.
+
+    Displays platform documentation and usage instructions.
+
+    Returns
+    -------
+    str
+        Rendered 'docs.html' template.
+    """
     return render_template('docs.html')

@@ -1,3 +1,19 @@
+"""
+SQLite database manager for UniNuvola user request management.
+
+This module provides a database manager class that interfaces with SQLite
+to store and manage user access requests. It handles request lifecycle
+including creation, status updates, approval workflows, and data retrieval.
+
+.. deprecated::
+    This module is deprecated in favor of db_redis.py which uses Redis
+    for better performance and scalability.
+
+Classes
+-------
+DBManager
+    Manager class for SQLite-based user request storage and retrieval.
+"""
 import sqlite3
 from datetime import datetime
 from typing import Dict, List, Any
